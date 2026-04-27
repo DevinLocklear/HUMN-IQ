@@ -3,52 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import './Landing.css';
 
 const features = [
-  {
-    icon: '◈',
-    title: 'AI Card Grader',
-    desc: 'Upload a photo and get an instant PSA grade prediction with centering, corners, edges and surface analysis.',
-  },
-  {
-    icon: '◎',
-    title: 'Grading ROI Calculator',
-    desc: 'Know exactly which cards are worth submitting before spending $25+ on grading fees.',
-  },
-  {
-    icon: '▲',
-    title: 'Market Intelligence',
-    desc: 'Real-time prices from eBay and TCGPlayer. Know what your cards are actually worth right now.',
-  },
-  {
-    icon: '◉',
-    title: 'Sealed Product Analysis',
-    desc: 'Open or hold? AI-powered recommendations based on historical price trends and print run data.',
-  },
-  {
-    icon: '▣',
-    title: 'Portfolio Tracker',
-    desc: 'Track your entire collection — raw, graded, sealed — with live market value updated daily.',
-  },
-  {
-    icon: '◐',
-    title: 'Set Intelligence',
-    desc: 'When a new set drops, know which cards to invest in before the market catches up.',
-  },
+  { icon: '◈', title: 'AI Card Grader', desc: 'Upload a photo and get an instant PSA grade prediction with centering, corners, edges and surface breakdown.' },
+  { icon: '◎', title: 'Grading ROI Calculator', desc: 'Know exactly which cards are worth submitting before spending $25+ on grading fees.' },
+  { icon: '▲', title: 'Market Intelligence', desc: 'Real-time prices from eBay and TCGPlayer. Know what your cards are actually worth right now.' },
+  { icon: '◉', title: 'Sealed Product Analysis', desc: 'Open or hold? AI-powered recommendations based on historical price trends and print run data.' },
+  { icon: '▣', title: 'Portfolio Tracker', desc: 'Track your entire collection — raw, graded, sealed — with live market value updated daily.' },
+  { icon: '◐', title: 'Set Intelligence', desc: 'When a new set drops, know which cards to invest in before the market catches up.' },
 ];
 
-const comparisons = [
-  { feature: 'Portfolio Tracking', collectr: true, humn: true },
-  { feature: 'Real-time Pricing', collectr: true, humn: true },
-  { feature: 'AI Card Grading', collectr: false, humn: true },
-  { feature: 'PSA Grade Prediction', collectr: false, humn: true },
-  { feature: 'Grading ROI Calculator', collectr: false, humn: true },
-  { feature: 'PSA Pop Report Analysis', collectr: false, humn: true },
-  { feature: 'Sealed Product Analysis', collectr: false, humn: true },
-  { feature: 'Open or Hold Recommendation', collectr: false, humn: true },
-  { feature: 'Set Investment Intelligence', collectr: false, humn: true },
-  { feature: 'Japanese Card Support', collectr: false, humn: true },
-  { feature: 'BGS / CGC Grading Support', collectr: false, humn: true },
-  { feature: 'Price Alerts', collectr: false, humn: true },
-  { feature: 'Ads', collectr: false, humn: false },
+const steps = [
+  { num: '01', title: 'Upload Your Card', desc: 'Take a clear photo of your Pokemon card — front facing, good lighting, flat surface. Drop it into HUMN IQ and let the AI go to work.' },
+  { num: '02', title: 'Get Your Grade Analysis', desc: 'Our AI analyzes centering, corners, edges, and surface condition — the same four criteria PSA uses — and returns a predicted grade in seconds.' },
+  { num: '03', title: 'See Your ROI', desc: 'HUMN IQ checks current PSA pop reports, raw vs graded price spreads, and grading costs to tell you whether submitting is actually worth it.' },
+  { num: '04', title: 'Track Your Portfolio', desc: 'Add cards to your portfolio and watch your total collection value update in real time as the market moves.' },
+  { num: '05', title: 'Invest Smarter', desc: 'Get set intelligence alerts when new releases drop — know which cards to invest in early before the market catches up.' },
 ];
 
 export default function Landing() {
@@ -57,44 +25,35 @@ export default function Landing() {
 
   return (
     <div className="landing">
-      {/* Nav */}
       <nav className="nav">
-        <div className="nav-logo">
-          HUMN <span className="nav-iq">IQ</span>
-        </div>
+        <div className="nav-logo">HUMN <span className="nav-iq">IQ</span></div>
         <div className="nav-links">
           <a href="#features">Features</a>
-          <a href="#compare">Compare</a>
+          <a href="#how">How It Works</a>
           <a href="#pricing">Pricing</a>
         </div>
-        <button className="btn-primary" onClick={() => navigate('/dashboard')}>
-          Get Started
-        </button>
+        <button className="btn-primary" onClick={() => navigate('/dashboard')}>Get Started</button>
       </nav>
 
-      {/* Hero */}
       <section className="hero">
         <div className="hero-bg">
           <div className="hero-grid" />
-          <div className="hero-glow" />
+          <div className="hero-glow-1" />
+          <div className="hero-glow-2" />
+          <div className="hero-glow-3" />
         </div>
         <div className="hero-content">
           <div className="tag">Pokemon TCG Intelligence Platform</div>
           <h1 className="hero-title">
-            Make smarter decisions<br />
-            on every <span className="hero-accent">card.</span>
+            Make smarter decisions<br />on every <span className="prism-text">card.</span>
           </h1>
           <p className="hero-sub">
             AI-powered grading, market intelligence, and portfolio tracking
             built specifically for serious Pokemon TCG collectors and investors.
           </p>
           <div className="hero-actions">
-            <button className="btn-primary" onClick={() => navigate('/grade')}>
-              Grade a Card Free
-            </button>
-            <button className="btn-ghost" onClick={() => navigate('/dashboard')}>
-              View Dashboard
-            </button>
+            <button className="btn-primary" onClick={() => navigate('/grade')}>Grade a Card Free</button>
+            <button className="btn-ghost" onClick={() => navigate('/dashboard')}>View Dashboard</button>
           </div>
           <div className="hero-stats">
             <div className="hero-stat">
@@ -115,7 +74,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
       <section className="features" id="features">
         <div className="section-header">
           <div className="tag">Features</div>
@@ -138,34 +96,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Comparison */}
-      <section className="compare" id="compare">
+      <section className="how-it-works" id="how">
         <div className="section-header">
-          <div className="tag">Comparison</div>
-          <h2 className="section-title">HUMN IQ vs Collectr</h2>
-          <p className="section-sub">We built what Collectr is missing.</p>
+          <div className="tag">How It Works</div>
+          <h2 className="section-title">From photo to profit in seconds</h2>
+          <p className="section-sub">HUMN IQ turns your card collection into actionable intelligence.</p>
         </div>
-        <div className="compare-table">
-          <div className="compare-header">
-            <div className="compare-feature-col">Feature</div>
-            <div className="compare-col">Collectr</div>
-            <div className="compare-col humn-col">HUMN IQ</div>
-          </div>
-          {comparisons.map((row, i) => (
-            <div key={i} className="compare-row">
-              <div className="compare-feature-col">{row.feature}</div>
-              <div className="compare-col">
-                {row.collectr ? <span className="check">✓</span> : <span className="cross">✗</span>}
-              </div>
-              <div className="compare-col humn-col">
-                {row.humn ? <span className="check accent">✓</span> : <span className="cross">✗</span>}
+        <div className="steps">
+          {steps.map((step, i) => (
+            <div key={i} className="step">
+              <div className="step-num">{step.num}</div>
+              <div className="step-content">
+                <div className="step-title">{step.title}</div>
+                <div className="step-desc">{step.desc}</div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Pricing */}
       <section className="pricing" id="pricing">
         <div className="section-header">
           <div className="tag">Pricing</div>
@@ -181,9 +130,7 @@ export default function Landing() {
               <li>Basic portfolio tracking</li>
               <li>Market price lookup</li>
             </ul>
-            <button className="btn-ghost" onClick={() => navigate('/dashboard')}>
-              Get Started Free
-            </button>
+            <button className="btn-ghost" onClick={() => navigate('/dashboard')}>Get Started Free</button>
           </div>
           <div className="pricing-card featured">
             <div className="pricing-badge">Most Popular</div>
@@ -199,14 +146,11 @@ export default function Landing() {
               <li>PSA pop report analysis</li>
               <li>Priority support</li>
             </ul>
-            <button className="btn-primary" onClick={() => navigate('/dashboard')}>
-              Start Pro
-            </button>
+            <button className="btn-primary" onClick={() => navigate('/dashboard')}>Start Pro</button>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="footer">
         <div className="footer-logo">HUMN <span>IQ</span></div>
         <p className="footer-sub">AI-powered Pokemon TCG intelligence</p>
