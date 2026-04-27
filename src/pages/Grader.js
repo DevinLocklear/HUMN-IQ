@@ -49,76 +49,21 @@ export default function Grader() {
         const base64 = e.target.result.split(',')[1];
         const mediaType = image.type;
 
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
+        const response = await fetch('/api/grade', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            system: `You are an expert Pokemon TCG card grader with years of experience grading for PSA, BGS, and CGC. 
-Analyze card images and provide detailed grading assessments. 
-Always respond with valid JSON only, no markdown, no explanation outside the JSON.`,
-            messages: [{
-              role: 'user',
-              content: [
-                {
-                  type: 'image',
-                  source: { type: 'base64', media_type: mediaType, data: base64 }
-                },
-                {
-                  type: 'text',
-                  text: `Grade this Pokemon card like a professional PSA grader. Analyze the four key criteria and provide scores.
-
-Respond ONLY with this exact JSON format:
-{
-  "cardName": "card name if visible",
-  "set": "set name if visible",
-  "overallGrade": 8.5,
-  "psaEquivalent": "PSA 8",
-  "centering": {
-    "score": 9,
-    "frontLeftRight": "55/45",
-    "frontTopBottom": "52/48",
-    "notes": "Slightly off-center left to right"
-  },
-  "corners": {
-    "score": 8,
-    "notes": "Minor wear on top-right corner, others clean"
-  },
-  "edges": {
-    "score": 9,
-    "notes": "Clean edges with minimal whitening"
-  },
-  "surface": {
-    "score": 8,
-    "notes": "Light scratch near center, print is clean"
-  },
-  "submitRecommendation": true,
-  "submitReason": "Strong candidate for PSA 8-9. Surface scratch may cost a point.",
-  "estimatedValue": {
-    "raw": "$45-60",
-    "psa8": "$120-150",
-    "psa9": "$200-250",
-    "psa10": "$500+"
-  }
-}`
-                }
-              ]
-            }]
-          })
+          body: JSON.stringify({ imageBase64: base64, mediaType }),
         });
 
-        const data = await response.json();
-        const text = data.content?.[0]?.text || '';
-
-        try {
-          const clean = text.replace(/```json|```/g, '').trim();
-          const parsed = JSON.parse(clean);
-          setResult(parsed);
-        } catch (parseErr) {
-          setError('Could not parse grading result. Please try again.');
+        if (!response.ok) {
+          const err = await response.json();
+          setError(err.error || 'Grading failed. Please try again.');
+          setLoading(false);
+          return;
         }
 
+        const parsed = await response.json();
+        setResult(parsed);
         setLoading(false);
       };
       reader.readAsDataURL(image);
