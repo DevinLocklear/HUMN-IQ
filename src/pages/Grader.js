@@ -55,6 +55,29 @@ export default function Grader() {
     return data?.data?.url;
   }
 
+  // Resize image before encoding to reduce base64 size
+  async function resizeImage(file, maxSize = 800) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxSize) { height *= maxSize / width; width = maxSize; }
+        } else {
+          if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85);
+      };
+      img.src = url;
+    });
+  }
+
   async function gradeCard() {
     if (!image) return;
     setLoading(true);
@@ -63,13 +86,12 @@ export default function Grader() {
 
     try {
       setLoadingStep('Uploading image...');
+      const resized = await resizeImage(image);
       const reader = new FileReader();
 
       reader.onload = async (e) => {
         try {
           const base64 = e.target.result.split(',')[1];
-
-          // Upload to imgbb to get a public URL
           const imageUrl = await uploadToImgbb(base64);
 
           setLoadingStep('Analyzing card condition...');
@@ -97,7 +119,7 @@ export default function Grader() {
         }
       };
 
-      reader.readAsDataURL(image);
+      reader.readAsDataURL(resized);
     } catch (err) {
       setError('Grading failed. Please try again.');
       setLoading(false);
