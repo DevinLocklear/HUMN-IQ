@@ -14,7 +14,10 @@
   border-bottom: 1px solid var(--border);
 }
 
-.nav-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.nav-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+.nav-logo-img { width: 32px; height: 32px; object-fit: contain; }
+.footer-logo { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.footer-logo-img { width: 36px; height: 36px; object-fit: contain; }
 .nav-iq { background: var(--prism); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: prismShift 4s ease infinite; }
 
 .nav-links { display: flex; gap: 32px; }

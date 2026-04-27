@@ -26,7 +26,10 @@ export default function Landing() {
   return (
     <div className="landing">
       <nav className="nav">
-        <div className="nav-logo">HUMN <span className="nav-iq">IQ</span></div>
+        <div className="nav-logo">
+          <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" className="nav-logo-img" />
+          HUMN <span className="nav-iq">IQ</span>
+        </div>
         <div className="nav-links">
           <a href="#features">Features</a>
           <a href="#how">How It Works</a>
@@ -152,7 +155,10 @@ export default function Landing() {
       </section>
 
       <footer className="footer">
-        <div className="footer-logo">HUMN <span>IQ</span></div>
+        <div className="footer-logo">
+          <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" className="footer-logo-img" />
+          HUMN <span>IQ</span>
+        </div>
         <p className="footer-sub">AI-powered Pokemon TCG intelligence</p>
         <div className="footer-links">
           <a href="https://x.com/UseHUMN" target="_blank" rel="noreferrer">x.com/UseHUMN</a>

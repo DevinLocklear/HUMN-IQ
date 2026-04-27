@@ -26,6 +26,9 @@
   padding: 0 24px 24px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .sidebar-logo span {
