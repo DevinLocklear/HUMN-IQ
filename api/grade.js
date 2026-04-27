@@ -54,9 +54,20 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: data.error?.message || 'API error' });
     }
 
-    const text = data.content?.[0]?.text || '';
-    const clean = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    // Find the text content block — skip any non-text blocks
+    const textBlock = data.content?.find(block => block.type === 'text');
+    const text = textBlock?.text || '';
+
+    // Extract JSON from the response — find first { and last }
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}');
+
+    if (jsonStart === -1 || jsonEnd === -1) {
+      return res.status(500).json({ error: 'No JSON found in response' });
+    }
+
+    const jsonStr = text.slice(jsonStart, jsonEnd + 1);
+    const parsed = JSON.parse(jsonStr);
     return res.status(200).json(parsed);
 
   } catch (err) {
