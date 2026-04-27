@@ -2,6 +2,10 @@
 // Vercel serverless function — proxies requests to Anthropic API
 // API key is stored as ANTHROPIC_API_KEY in Vercel environment variables
 
+export const config = {
+  maxDuration: 60, // 60 second timeout
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
