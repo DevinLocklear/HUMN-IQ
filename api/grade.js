@@ -4,8 +4,8 @@ export const config = { maxDuration: 60 };
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { imageBase64, mediaType } = req.body;
-  if (!imageBase64 || !mediaType) return res.status(400).json({ error: 'Missing fields' });
+  const { imageUrl } = req.body;
+  if (!imageUrl) return res.status(400).json({ error: 'Missing imageUrl' });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'API key not configured' });
 
   try {
@@ -24,11 +24,11 @@ export default async function handler(req, res) {
           content: [
             {
               type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: imageBase64 }
+              source: { type: 'url', url: imageUrl }
             },
             {
               type: 'text',
-              text: `Analyze this trading card's physical condition and return ONLY a JSON object with no other text:
+              text: `Analyze this trading card's physical condition and return ONLY a JSON object:
 {"cardName":"name","set":"set","overallGrade":8.5,"psaEquivalent":"PSA 8","centering":{"score":9,"frontLeftRight":"55/45","frontTopBottom":"52/48","notes":"notes"},"corners":{"score":8,"notes":"notes"},"edges":{"score":9,"notes":"notes"},"surface":{"score":8,"notes":"notes"},"submitRecommendation":true,"submitReason":"reason","estimatedValue":{"raw":"$45-60","psa8":"$120-150","psa9":"$200-250","psa10":"$500+"}}`
             }
           ]
@@ -41,14 +41,10 @@ export default async function handler(req, res) {
 
     const textBlock = data.content?.find(b => b.type === 'text');
     let text = textBlock?.text || '';
+    text = text.replace(/<[^>]+>[\s\S]*?<\/[^>]+>/g, '').trim();
 
-    // Strip any ethics reminder XML tags if present
-    text = text.replace(/<ethics_reminder>[\s\S]*?<\/ethics_reminder>/g, '').trim();
-
-    // Find the JSON object
     const jsonStart = text.indexOf('{');
     const jsonEnd = text.lastIndexOf('}');
-
     if (jsonStart === -1 || jsonEnd === -1) {
       return res.status(500).json({ error: 'No JSON found', raw: text.slice(0, 300) });
     }

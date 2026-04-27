@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Grader.css';
 
 const GRADE_COLORS = {
-  10: '#c8ff00',
+  10: '#ff2d8a',
   9: '#00ff88',
   8: '#4499ff',
   7: '#ffcc00',
@@ -11,12 +11,15 @@ const GRADE_COLORS = {
   5: '#ff4444',
 };
 
+const IMGBB_KEY = '5b0a4c5a3e7f8d6c2e1f9b4a3c8d7e6f'; // Replace with your imgbb key
+
 export default function Grader() {
   const navigate = useNavigate();
   const fileRef = useRef(null);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
@@ -34,38 +37,66 @@ export default function Grader() {
   function handleDrop(e) {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
+    handleFile(e.dataTransfer.files[0]);
+  }
+
+  async function uploadToImgbb(base64) {
+    const formData = new URLSearchParams();
+    formData.append('key', process.env.REACT_APP_IMGBB_KEY || IMGBB_KEY);
+    formData.append('image', base64);
+
+    const res = await fetch('https://api.imgbb.com/1/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error('Image upload failed');
+    const data = await res.json();
+    return data?.data?.url;
   }
 
   async function gradeCard() {
     if (!image) return;
     setLoading(true);
     setError(null);
+    setResult(null);
 
     try {
+      setLoadingStep('Uploading image...');
       const reader = new FileReader();
+
       reader.onload = async (e) => {
-        const base64 = e.target.result.split(',')[1];
-        const mediaType = image.type;
+        try {
+          const base64 = e.target.result.split(',')[1];
 
-        const response = await fetch('/api/grade', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: base64, mediaType }),
-        });
+          // Upload to imgbb to get a public URL
+          const imageUrl = await uploadToImgbb(base64);
 
-        if (!response.ok) {
-          const err = await response.json();
-          setError(err.error || 'Grading failed. Please try again.');
+          setLoadingStep('Analyzing card condition...');
+
+          const response = await fetch('/api/grade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageUrl }),
+          });
+
+          if (!response.ok) {
+            const err = await response.json();
+            setError(err.error || 'Grading failed. Please try again.');
+            setLoading(false);
+            return;
+          }
+
+          const parsed = await response.json();
+          setResult(parsed);
           setLoading(false);
-          return;
+          setLoadingStep('');
+        } catch (err) {
+          setError('Grading failed: ' + err.message);
+          setLoading(false);
         }
-
-        const parsed = await response.json();
-        setResult(parsed);
-        setLoading(false);
       };
+
       reader.readAsDataURL(image);
     } catch (err) {
       setError('Grading failed. Please try again.');
@@ -79,11 +110,10 @@ export default function Grader() {
     <div className="grader">
       <nav className="grader-nav">
         <div className="nav-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           HUMN <span className="nav-iq">IQ</span>
         </div>
-        <button className="btn-ghost" onClick={() => navigate('/dashboard')}>
-          Dashboard
-        </button>
+        <button className="btn-ghost" onClick={() => navigate('/dashboard')}>Dashboard</button>
       </nav>
 
       <div className="grader-content">
@@ -111,30 +141,15 @@ export default function Grader() {
                 <p className="drop-hint">JPG, PNG — front of card only</p>
               </div>
             )}
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={(e) => handleFile(e.target.files[0])}
-            />
+            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files[0])} />
           </div>
 
           {imagePreview && (
             <div className="grader-actions">
-              <button
-                className="btn-primary"
-                onClick={gradeCard}
-                disabled={loading}
-                style={{ width: '100%', padding: '16px' }}
-              >
-                {loading ? 'Analyzing...' : 'Grade This Card'}
+              <button className="btn-primary" onClick={gradeCard} disabled={loading} style={{ width: '100%', padding: '16px' }}>
+                {loading ? loadingStep || 'Analyzing...' : 'Grade This Card'}
               </button>
-              <button
-                className="btn-ghost"
-                onClick={() => { setImage(null); setImagePreview(null); setResult(null); }}
-                style={{ width: '100%' }}
-              >
+              <button className="btn-ghost" onClick={() => { setImage(null); setImagePreview(null); setResult(null); }} style={{ width: '100%' }}>
                 Clear
               </button>
             </div>
@@ -147,7 +162,7 @@ export default function Grader() {
           {loading && (
             <div className="loading-state">
               <div className="loading-spinner" />
-              <p>Analyzing centering, corners, edges & surface...</p>
+              <p>{loadingStep || 'Analyzing centering, corners, edges & surface...'}</p>
             </div>
           )}
 
@@ -179,18 +194,10 @@ export default function Grader() {
                       </span>
                     </div>
                     <div className="score-bar">
-                      <div
-                        className="score-fill"
-                        style={{
-                          width: `${(item.data?.score / 10) * 100}%`,
-                          background: GRADE_COLORS[item.data?.score] || '#444'
-                        }}
-                      />
+                      <div className="score-fill" style={{ width: `${(item.data?.score / 10) * 100}%`, background: GRADE_COLORS[item.data?.score] || '#444' }} />
                     </div>
                     {item.label === 'Centering' && item.data?.frontLeftRight && (
-                      <div className="score-detail mono">
-                        L/R: {item.data.frontLeftRight} · T/B: {item.data.frontTopBottom}
-                      </div>
+                      <div className="score-detail mono">L/R: {item.data.frontLeftRight} · T/B: {item.data.frontTopBottom}</div>
                     )}
                     <div className="score-notes">{item.data?.notes}</div>
                   </div>
@@ -200,9 +207,7 @@ export default function Grader() {
               <div className={`submit-rec ${result.submitRecommendation ? 'rec-yes' : 'rec-no'}`}>
                 <div className="rec-icon">{result.submitRecommendation ? '✓' : '✗'}</div>
                 <div>
-                  <div className="rec-title">
-                    {result.submitRecommendation ? 'Worth Submitting' : 'Not Recommended'}
-                  </div>
+                  <div className="rec-title">{result.submitRecommendation ? 'Worth Submitting' : 'Not Recommended'}</div>
                   <div className="rec-reason">{result.submitReason}</div>
                 </div>
               </div>
@@ -211,22 +216,10 @@ export default function Grader() {
                 <div className="value-grid">
                   <div className="value-label">Estimated Values</div>
                   <div className="value-items">
-                    <div className="value-item">
-                      <span className="value-tier">Raw</span>
-                      <span className="value-price">{result.estimatedValue.raw}</span>
-                    </div>
-                    <div className="value-item">
-                      <span className="value-tier">PSA 8</span>
-                      <span className="value-price">{result.estimatedValue.psa8}</span>
-                    </div>
-                    <div className="value-item">
-                      <span className="value-tier">PSA 9</span>
-                      <span className="value-price">{result.estimatedValue.psa9}</span>
-                    </div>
-                    <div className="value-item">
-                      <span className="value-tier">PSA 10</span>
-                      <span className="value-price accent">{result.estimatedValue.psa10}</span>
-                    </div>
+                    <div className="value-item"><span className="value-tier">Raw</span><span className="value-price">{result.estimatedValue.raw}</span></div>
+                    <div className="value-item"><span className="value-tier">PSA 8</span><span className="value-price">{result.estimatedValue.psa8}</span></div>
+                    <div className="value-item"><span className="value-tier">PSA 9</span><span className="value-price">{result.estimatedValue.psa9}</span></div>
+                    <div className="value-item"><span className="value-tier">PSA 10</span><span className="value-price" style={{color:'var(--pink)'}}>{result.estimatedValue.psa10}</span></div>
                   </div>
                 </div>
               )}
