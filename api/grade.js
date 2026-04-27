@@ -19,45 +19,49 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: imageBase64 }
-            },
-            {
-              type: 'text',
-              text: `Look at this trading card image and assess its physical condition.
-
-Return ONLY a JSON object with no other text:
-{
-  "cardName": "name on card",
-  "set": "set name",
-  "overallGrade": 8.5,
-  "psaEquivalent": "PSA 8",
-  "centering": {"score": 9, "frontLeftRight": "55/45", "frontTopBottom": "52/48", "notes": "notes"},
-  "corners": {"score": 8, "notes": "notes"},
-  "edges": {"score": 9, "notes": "notes"},
-  "surface": {"score": 8, "notes": "notes"},
-  "submitRecommendation": true,
-  "submitReason": "reason",
-  "estimatedValue": {"raw": "$45-60", "psa8": "$120-150", "psa9": "$200-250", "psa10": "$500+"}
-}`
-            }
-          ]
-        }]
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: { type: 'base64', media_type: mediaType, data: imageBase64 }
+              },
+              {
+                type: 'text',
+                text: 'Look at this trading card image and assess its physical condition.'
+              }
+            ]
+          },
+          {
+            role: 'assistant',
+            content: 'I will analyze this trading card condition and provide a grading assessment in JSON format.\n\n```json\n{'
+          },
+          {
+            role: 'user',
+            content: 'Complete the JSON with cardName, set, overallGrade (number), psaEquivalent, centering (score, frontLeftRight, frontTopBottom, notes), corners (score, notes), edges (score, notes), surface (score, notes), submitRecommendation (boolean), submitReason, estimatedValue (raw, psa8, psa9, psa10). Return only the completed JSON.'
+          }
+        ]
       })
     });
 
     const data = await response.json();
     if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'API error' });
 
+    // Log full response for debugging
+    console.log('API response:', JSON.stringify(data.content));
+
     const textBlock = data.content?.find(b => b.type === 'text');
     const text = textBlock?.text || '';
+
+    // Try to find JSON in the response
     const jsonStart = text.indexOf('{');
     const jsonEnd = text.lastIndexOf('}');
-    if (jsonStart === -1 || jsonEnd === -1) return res.status(500).json({ error: 'No JSON in response' });
+
+    if (jsonStart === -1 || jsonEnd === -1) {
+      // Return raw text for debugging
+      return res.status(500).json({ error: 'No JSON found', raw: text.slice(0, 500) });
+    }
 
     const parsed = JSON.parse(text.slice(jsonStart, jsonEnd + 1));
     return res.status(200).json(parsed);
