@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-4-5-20251001', // Changed model for better compatibility
         max_tokens: 1000,
         messages: [{
           role: 'user',
@@ -28,8 +28,7 @@ export default async function handler(req, res) {
             },
             {
               type: 'text',
-              text: `Analyze this trading card's physical condition and return ONLY a JSON object:
-{"cardName":"name","set":"set","overallGrade":8.5,"psaEquivalent":"PSA 8","centering":{"score":9,"frontLeftRight":"55/45","frontTopBottom":"52/48","notes":"notes"},"corners":{"score":8,"notes":"notes"},"edges":{"score":9,"notes":"notes"},"surface":{"score":8,"notes":"notes"},"submitRecommendation":true,"submitReason":"reason","estimatedValue":{"raw":"$45-60","psa8":"$120-150","psa9":"$200-250","psa10":"$500+"}}`
+              text: `Please analyze this Pokemon trading card's condition and provide a detailed assessment in JSON format: {"cardName":"name","set":"set","overallGrade":8.5,"psaEquivalent":"PSA 8","centering":{"score":9,"frontLeftRight":"55/45","frontTopBottom":"52/48","notes":"notes"},"corners":{"score":8,"notes":"notes"},"edges":{"score":9,"notes":"notes"},"surface":{"score":8,"notes":"notes"},"submitRecommendation":true,"submitReason":"reason","estimatedValue":{"raw":"$45-60","psa8":"$120-150","psa9":"$200-250","psa10":"$500+"}}`
             }
           ]
         }]
@@ -38,6 +37,14 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     if (!response.ok) return res.status(response.status).json({ error: data.error?.message || 'API error' });
+
+    // Check for refusal
+    if (data.stop_reason === 'refusal') {
+      return res.status(400).json({
+        error: 'Request blocked by safety classifier',
+        suggestion: 'Try rephrasing your prompt or using a different approach'
+      });
+    }
 
     const textBlock = data.content?.find(b => b.type === 'text');
     let text = textBlock?.text || '';
