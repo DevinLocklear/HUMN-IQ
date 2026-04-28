@@ -203,13 +203,14 @@
 .portfolio-empty {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 80px 40px;
+  padding: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 8px;
   width: 100%;
+  min-height: 300px;
 }
 
 .empty-icon {
