@@ -1,6 +1,60 @@
+/* Sidebar */
+.sidebar {
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 240px;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  font-size: 18px;
+  font-weight: 800;
+  padding: 0 24px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-logo span { color: var(--pink); }
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  position: relative;
+}
+
+.sidebar-item:hover { background: var(--bg-elevated); }
+.sidebar-item.active { background: var(--accent-dim); }
+.sidebar-item.active .sidebar-label { color: var(--pink); }
+
+.sidebar-icon { font-size: 16px; color: var(--text-muted); width: 20px; text-align: center; }
+.sidebar-label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.sidebar-soon { margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); font-family: 'DM Mono', monospace; background: var(--bg-elevated); padding: 2px 6px; }
+
+.sidebar-footer { padding: 16px 16px 0; border-top: 1px solid var(--border); margin-top: 16px; }
+.plan-tier { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.plan-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-family: 'DM Mono', monospace; }
+
 .portfolio {
-  display: grid;
-  grid-template-columns: 240px 1fr;
   min-height: 100vh;
   background: var(--bg);
 }
@@ -11,6 +65,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  min-width: 0;
 }
 
 .portfolio-header {
@@ -257,7 +312,9 @@ select.field-input {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow: visible;
+  width: 100%;
+  min-height: 60px;
 }
 
 .card-row {
