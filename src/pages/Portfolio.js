@@ -42,6 +42,7 @@ export default function Portfolio({ session }) {
 
   useEffect(() => {
     fetchCards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchCards() {
