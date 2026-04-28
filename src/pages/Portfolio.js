@@ -20,35 +20,46 @@ export default function Portfolio({ session }) {
     if (!query || query.length < 2) { setSearchResults([]); return; }
     setSearching(true);
     try {
-      // Also search for M prefix version (e.g. "M Lucario-EX" for "Mega Lucario EX")
-      const altQuery = query
-        .replace(/^Mega /i, 'M ')
-        .replace(/ EX$/i, '-EX')
-        .replace(/ ex$/i, '-ex');
-      const hasSpace = query.includes(' ');
-      const searchQ = hasSpace ? `name:"${query}*"` : `name:${query}*`;
-      const altSearchQ = altQuery !== query ? (altQuery.includes(' ') ? `name:"${altQuery}*"` : `name:${altQuery}*`) : null;
-
-      const fetches = [fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(searchQ)}&pageSize=15&orderBy=-set.releaseDate`)];
-      if (altSearchQ) fetches.push(fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(altSearchQ)}&pageSize=10&orderBy=-set.releaseDate`));
-
       if (attempt > 0) await new Promise(r => setTimeout(r, 600 * attempt));
 
-      const responses = await Promise.all(fetches);
-      const allCards = [];
-      for (const res of responses) {
-        if (res.status === 429 && attempt < 3) {
-          return searchCards(query, attempt + 1);
-        }
-        if (res.ok) {
-          const data = await res.json();
-          allCards.push(...(data?.data || []));
-        }
-      }
-      // Deduplicate by id
+      // Extract core pokemon name for broader search
+      // "Mega Lucario EX" -> search "Lucario" to get all variants
+      const words = query.trim().split(' ');
+      const coreWord = words.find(w =>
+        !['mega', 'ex', 'gx', 'vmax', 'vstar', 'v', 'm', 'tag', 'team', 'prism', 'star', 'radiant', 'shiny'].includes(w.toLowerCase())
+      ) || words[0];
+
+      // Run both full name and core name searches in parallel
+      const searches = [
+        `name:${encodeURIComponent(query)}*`,
+        `name:${encodeURIComponent(coreWord)}*`,
+      ];
+
+      const results = await Promise.all(
+        searches.map(q =>
+          fetch(`https://api.pokemontcg.io/v2/cards?q=${q}&pageSize=20&orderBy=-set.releaseDate`)
+            .then(r => r.ok ? r.json() : { data: [] })
+            .catch(() => ({ data: [] }))
+        )
+      );
+
+      // Combine and deduplicate
       const seen = new Set();
-      const unique = allCards.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true; });
-      setSearchResults(unique);
+      const allCards = results.flatMap(d => d?.data || []).filter(c => {
+        if (seen.has(c.id)) return false;
+        seen.add(c.id);
+        return true;
+      });
+
+      // Sort - exact matches first
+      const queryLower = query.toLowerCase();
+      allCards.sort((a, b) => {
+        const aMatch = a.name.toLowerCase().includes(queryLower) ? 0 : 1;
+        const bMatch = b.name.toLowerCase().includes(queryLower) ? 0 : 1;
+        return aMatch - bMatch;
+      });
+
+      setSearchResults(allCards.slice(0, 20));
     } catch (e) { setSearchResults([]); }
     setSearching(false);
   }
