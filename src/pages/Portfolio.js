@@ -11,6 +11,25 @@ export default function Portfolio({ session }) {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [fetchingPrice, setFetchingPrice] = useState(false);
+
+  async function fetchMarketValue(cardName) {
+    if (!cardName || cardName.length < 3) return;
+    setFetchingPrice(true);
+    try {
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(cardName)}"&pageSize=1`);
+      const data = await res.json();
+      const card = data?.data?.[0];
+      if (card?.tcgplayer?.prices) {
+        const prices = card.tcgplayer.prices;
+        const market = prices.holofoil?.market || prices.normal?.market || prices.reverseHolofoil?.market || prices['1stEditionHolofoil']?.market;
+        if (market) {
+          setForm(f => ({ ...f, current_value: market.toFixed(2) }));
+        }
+      }
+    } catch (e) {}
+    setFetchingPrice(false);
+  }
   const [form, setForm] = useState({
     card_name: '',
     set_name: '',
@@ -111,7 +130,7 @@ export default function Portfolio({ session }) {
             <h1 className="portfolio-title">Portfolio</h1>
             <p className="portfolio-sub">{cards.length} cards tracked</p>
           </div>
-          <button className="btn-primary" onClick={() => setShowAdd(true)}>+ Add Card</button>
+          {cards.length > 0 && <button className="btn-primary" onClick={() => setShowAdd(true)}>+ Add Card</button>}
         </div>
 
         {/* Stats */}
@@ -150,7 +169,7 @@ export default function Portfolio({ session }) {
                 <div className="form-row">
                   <div className="field">
                     <label className="field-label">Card Name *</label>
-                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={e => setForm({...form, card_name: e.target.value})} required />
+                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={e => setForm({...form, card_name: e.target.value})} onBlur={e => fetchMarketValue(e.target.value)} required />
                   </div>
                   <div className="field">
                     <label className="field-label">Set</label>
@@ -175,8 +194,8 @@ export default function Portfolio({ session }) {
                     <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.purchase_price} onChange={e => setForm({...form, purchase_price: e.target.value})} />
                   </div>
                   <div className="field">
-                    <label className="field-label">Current Value ($)</label>
-                    <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.current_value} onChange={e => setForm({...form, current_value: e.target.value})} />
+                    <label className="field-label">Current Value ($) {fetchingPrice && <span style={{color:'var(--pink)',fontSize:11}}>Fetching...</span>}</label>
+                    <input className="field-input" type="number" step="0.01" placeholder={fetchingPrice ? "Fetching market price..." : "0.00"} value={form.current_value} onChange={e => setForm({...form, current_value: e.target.value})} />
                   </div>
                 </div>
                 <div className="field">
