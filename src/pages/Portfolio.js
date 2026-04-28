@@ -48,23 +48,7 @@ export default function Portfolio({ session }) {
     setSearchResults([]);
   }
 
-  async function fetchMarketValue(cardName) {
-    if (!cardName || cardName.length < 3) return;
-    setFetchingPrice(true);
-    try {
-      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(cardName)}"&pageSize=1`);
-      const data = await res.json();
-      const card = data?.data?.[0];
-      if (card?.tcgplayer?.prices) {
-        const prices = card.tcgplayer.prices;
-        const market = prices.holofoil?.market || prices.normal?.market || prices.reverseHolofoil?.market || prices['1stEditionHolofoil']?.market;
-        if (market) {
-          setForm(f => ({ ...f, current_value: market.toFixed(2) }));
-        }
-      }
-    } catch (e) {}
-    setFetchingPrice(false);
-  }
+
   const [cardImages, setCardImages] = useState({});
 
   async function fetchCardImage(cardName, cardId) {
