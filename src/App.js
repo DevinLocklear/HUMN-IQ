@@ -8,7 +8,12 @@ import Auth from './pages/Auth';
 import Portfolio from './pages/Portfolio';
 import './App.css';
 
-function PrivateRoute({ children, session }) {
+function PrivateRoute({ children, session, loading }) {
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#050507', color: '#f0f0f8' }}>
+      Loading...
+    </div>
+  );
   return session ? children : <Navigate to="/auth" />;
 }
 
@@ -40,9 +45,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing session={session} />} />
         <Route path="/auth" element={session ? <Navigate to="/dashboard" /> : <Auth />} />
-        <Route path="/dashboard" element={<PrivateRoute session={session}><Dashboard session={session} /></PrivateRoute>} />
-        <Route path="/grade" element={<PrivateRoute session={session}><Grader session={session} /></PrivateRoute>} />
-        <Route path="/portfolio" element={<PrivateRoute session={session}><Portfolio session={session} /></PrivateRoute>} />
+        <Route path="/dashboard" element={<PrivateRoute session={session} loading={loading}><Dashboard session={session} /></PrivateRoute>} />
+        <Route path="/grade" element={<PrivateRoute session={session} loading={loading}><Grader session={session} /></PrivateRoute>} />
+        <Route path="/portfolio" element={<PrivateRoute session={session} loading={loading}><Portfolio session={session} /></PrivateRoute>} />
       </Routes>
     </Router>
   );
