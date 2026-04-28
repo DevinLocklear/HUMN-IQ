@@ -13,6 +13,40 @@ export default function Portfolio({ session }) {
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
   const [fetchingPrice, setFetchingPrice] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
+  async function searchCards(query) {
+    if (!query || query.length < 2) { setSearchResults([]); return; }
+    setSearching(true);
+    try {
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(query)}"&pageSize=8&orderBy=name`);
+      const data = await res.json();
+      setSearchResults(data?.data || []);
+    } catch (e) { setSearchResults([]); }
+    setSearching(false);
+  }
+
+  function handleCardNameChange(e) {
+    const val = e.target.value;
+    setForm({...form, card_name: val});
+    if (searchTimeout) clearTimeout(searchTimeout);
+    const t = setTimeout(() => searchCards(val), 300);
+    setSearchTimeout(t);
+  }
+
+  function selectCard(card) {
+    const prices = card.tcgplayer?.prices;
+    const market = prices?.holofoil?.market || prices?.normal?.market || prices?.reverseHolofoil?.market || prices?.['1stEditionHolofoil']?.market || null;
+    setForm(f => ({
+      ...f,
+      card_name: card.name,
+      set_name: card.set?.name || '',
+      current_value: market ? market.toFixed(2) : f.current_value,
+    }));
+    setSearchResults([]);
+  }
 
   async function fetchMarketValue(cardName) {
     if (!cardName || cardName.length < 3) return;
@@ -232,9 +266,27 @@ export default function Portfolio({ session }) {
               </div>
               <form className="add-form" onSubmit={addCard}>
                 <div className="form-row">
-                  <div className="field">
-                    <label className="field-label">Card Name *</label>
-                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={e => setForm({...form, card_name: e.target.value})} onBlur={e => fetchMarketValue(e.target.value)} required />
+                  <div className="field" style={{ position: 'relative' }}>
+                    <label className="field-label">Card Name * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>
+                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={handleCardNameChange} autoComplete="off" required />
+                    {searchResults.length > 0 && (
+                      <div className="card-search-dropdown">
+                        {searchResults.map(card => {
+                          const prices = card.tcgplayer?.prices;
+                          const market = prices?.holofoil?.market || prices?.normal?.market || prices?.reverseHolofoil?.market || null;
+                          return (
+                            <div key={card.id} className="card-search-result" onClick={() => selectCard(card)}>
+                              <img src={card.images?.small} alt={card.name} className="card-search-img" />
+                              <div className="card-search-info">
+                                <div className="card-search-name">{card.name}</div>
+                                <div className="card-search-set">{card.set?.name} · #{card.number}</div>
+                                {market && <div className="card-search-price">${market.toFixed(2)}</div>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   <div className="field">
                     <label className="field-label">Set</label>
