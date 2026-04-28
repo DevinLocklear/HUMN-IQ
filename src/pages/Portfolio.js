@@ -20,18 +20,35 @@ export default function Portfolio({ session }) {
     if (!query || query.length < 2) { setSearchResults([]); return; }
     setSearching(true);
     try {
-      // Use quotes for multi-word names, wildcard for single words
+      // Also search for M prefix version (e.g. "M Lucario-EX" for "Mega Lucario EX")
+      const altQuery = query
+        .replace(/^Mega /i, 'M ')
+        .replace(/ EX$/i, '-EX')
+        .replace(/ ex$/i, '-ex');
       const hasSpace = query.includes(' ');
-      const searchQ = hasSpace
-        ? `name:"${query}*"`
-        : `name:${query}*`;
-      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(searchQ)}&pageSize=20&orderBy=-set.releaseDate`);
-      if (res.status === 429 && attempt < 3) {
-        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
-        return searchCards(query, attempt + 1);
+      const searchQ = hasSpace ? `name:"${query}*"` : `name:${query}*`;
+      const altSearchQ = altQuery !== query ? (altQuery.includes(' ') ? `name:"${altQuery}*"` : `name:${altQuery}*`) : null;
+
+      const fetches = [fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(searchQ)}&pageSize=15&orderBy=-set.releaseDate`)];
+      if (altSearchQ) fetches.push(fetch(`https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(altSearchQ)}&pageSize=10&orderBy=-set.releaseDate`));
+
+      if (attempt > 0) await new Promise(r => setTimeout(r, 600 * attempt));
+
+      const responses = await Promise.all(fetches);
+      const allCards = [];
+      for (const res of responses) {
+        if (res.status === 429 && attempt < 3) {
+          return searchCards(query, attempt + 1);
+        }
+        if (res.ok) {
+          const data = await res.json();
+          allCards.push(...(data?.data || []));
+        }
       }
-      const data = await res.json();
-      setSearchResults(data?.data || []);
+      // Deduplicate by id
+      const seen = new Set();
+      const unique = allCards.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true; });
+      setSearchResults(unique);
     } catch (e) { setSearchResults([]); }
     setSearching(false);
   }
