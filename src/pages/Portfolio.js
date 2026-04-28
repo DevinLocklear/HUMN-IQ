@@ -16,12 +16,15 @@ export default function Portfolio({ session }) {
   const [searching, setSearching] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null);
 
-  async function searchCards(query) {
+  async function searchCards(query, attempt = 0) {
     if (!query || query.length < 2) { setSearchResults([]); return; }
     setSearching(true);
     try {
-      // Use partial match without quotes for broader results
-      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:%22${encodeURIComponent(query)}*%22&pageSize=10&orderBy=-set.releaseDate`);
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:%22${encodeURIComponent(query)}*%22&pageSize=20&orderBy=-set.releaseDate`);
+      if (res.status === 429 && attempt < 3) {
+        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
+        return searchCards(query, attempt + 1);
+      }
       const data = await res.json();
       setSearchResults(data?.data || []);
     } catch (e) { setSearchResults([]); }
