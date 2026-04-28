@@ -53,7 +53,10 @@ export default function Portfolio({ session }) {
       .eq('user_id', session.user.id)
       .order('created_at', { ascending: false });
 
-    if (!error) setCards(data || []);
+    if (error) {
+      console.error('Portfolio fetch error:', error);
+    }
+    setCards(data || []);
     setLoading(false);
   }
 
