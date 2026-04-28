@@ -41,7 +41,7 @@ export default function Dashboard() {
             <div
               key={i}
               className={`sidebar-item ${item.active ? 'active' : ''}`}
-              onClick={() => item.path === '/grade' ? navigate('/grade') : null}
+              onClick={() => (item.path === '/grade' || item.path === '/portfolio') ? navigate(item.path) : null}
             >
               <span className="sidebar-icon">{item.icon}</span>
               <span className="sidebar-label">{item.label}</span>
