@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../supabase';
 import './Portfolio.css';
 
@@ -30,6 +31,18 @@ export default function Portfolio({ session }) {
     } catch (e) {}
     setFetchingPrice(false);
   }
+  const [cardImages, setCardImages] = useState({});
+
+  async function fetchCardImage(cardName, cardId) {
+    if (!cardName || cardImages[cardId]) return;
+    try {
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(cardName)}"&pageSize=1`);
+      const data = await res.json();
+      const img = data?.data?.[0]?.images?.small;
+      if (img) setCardImages(prev => ({ ...prev, [cardId]: img }));
+    } catch (e) {}
+  }
+
   const [form, setForm] = useState({
     card_name: '',
     set_name: '',
@@ -47,15 +60,13 @@ export default function Portfolio({ session }) {
 
   async function fetchCards() {
     setLoading(true);
+    console.log('Fetching cards for user:', session?.user?.id);
     const { data, error } = await supabase
       .from('portfolio')
       .select('*')
-      .eq('user_id', session.user.id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Portfolio fetch error:', error);
-    }
+    console.log('Result:', { data, error });
     setCards(data || []);
     setLoading(false);
   }
@@ -87,6 +98,13 @@ export default function Portfolio({ session }) {
     await supabase.from('portfolio').delete().eq('id', id);
     fetchCards();
   }
+
+  // Build chart data
+  const chartData = cards.map(card => ({
+    name: card.card_name.slice(0, 12),
+    cost: Number(card.purchase_price || 0) * card.quantity,
+    value: Number(card.current_value || 0) * card.quantity,
+  }));
 
   // Stats
   const totalValue = cards.reduce((sum, c) => sum + ((c.current_value || 0) * c.quantity), 0);
@@ -162,6 +180,48 @@ export default function Portfolio({ session }) {
           </div>
         </div>
 
+        {/* Chart */}
+        {cards.length > 0 && (
+          <div className="portfolio-chart">
+            <div className="chart-header">
+              <div className="chart-title">Portfolio Overview</div>
+              <div className="chart-summary">
+                <div className="chart-stat">
+                  <span className="chart-stat-label">Cost Basis</span>
+                  <span className="chart-stat-value">${totalCost.toFixed(2)}</span>
+                </div>
+                <div className="chart-stat">
+                  <span className="chart-stat-label">Market Value</span>
+                  <span className="chart-stat-value" style={{ color: 'var(--pink)' }}>${totalValue.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ff2d8a" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#ff2d8a" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6b6b8a" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#6b6b8a" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="name" tick={{ fill: '#6b6b8a', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#6b6b8a', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${v}`} />
+                <Tooltip
+                  contentStyle={{ background: '#111', border: '1px solid #222', borderRadius: 0 }}
+                  labelStyle={{ color: '#f0f0f8', fontSize: 12 }}
+                  formatter={(value, name) => [`$${value.toFixed(2)}`, name === 'value' ? 'Market Value' : 'Cost Basis']}
+                />
+                <Area type="monotone" dataKey="cost" stroke="#6b6b8a" strokeWidth={1.5} fill="url(#colorCost)" />
+                <Area type="monotone" dataKey="value" stroke="#ff2d8a" strokeWidth={1.5} fill="url(#colorValue)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
         {/* Add Card Modal */}
         {showAdd && (
           <div className="modal-overlay" onClick={() => setShowAdd(false)}>
@@ -234,7 +294,11 @@ export default function Portfolio({ session }) {
               const gain = value - cost;
               const gainPct = cost > 0 ? ((gain / cost) * 100).toFixed(0) : null;
               return (
-                <div key={card.id} className="card-row">
+                <div key={card.id} className="card-row" onMouseEnter={() => fetchCardImage(card.card_name, card.id)}>
+                  {cardImages[card.id]
+                    ? <img src={cardImages[card.id]} alt={card.card_name} className="card-row-img" />
+                    : <div className="card-row-img-placeholder">▣</div>
+                  }
                   <div className="card-row-main">
                     <div className="card-row-name">{card.card_name}</div>
                     {card.set_name && <div className="card-row-set">{card.set_name}</div>}

@@ -320,8 +320,8 @@ select.field-input {
 .card-row {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 20px 24px;
+  gap: 32px;
+  padding: 24px 32px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
   transition: background 0.15s;
@@ -337,7 +337,8 @@ select.field-input {
 
 .card-row-name {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -370,17 +371,90 @@ select.field-input {
 
 .card-row-label {
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .card-row-value {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
   font-family: 'DM Mono', monospace;
+  letter-spacing: 0.02em;
 }
 
 .card-row-value.positive { color: var(--green); }
 .card-row-value.negative { color: var(--red); }
+
+/* Card image */
+.card-row-img {
+  width: 44px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+}
+
+.card-row-img-placeholder {
+  width: 44px;
+  height: 62px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* Chart section */
+.portfolio-chart {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.chart-summary {
+  display: flex;
+  gap: 24px;
+}
+
+.chart-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.chart-stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.chart-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+}
