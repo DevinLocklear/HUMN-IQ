@@ -153,7 +153,7 @@ export default function Portfolio({ session }) {
             <h1 className="portfolio-title">Portfolio</h1>
             <p className="portfolio-sub">{cards.length} cards tracked</p>
           </div>
-
+          <button className="btn-primary" onClick={() => setShowAdd(true)}>+ Add Card</button>
         </div>
 
         {/* Stats */}
