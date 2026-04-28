@@ -62,9 +62,6 @@ export default function Dashboard() {
             <h1 className="dash-title">Dashboard</h1>
             <p className="dash-sub">Welcome to HUMN IQ</p>
           </div>
-          <button className="btn-primary" onClick={() => navigate('/grade')}>
-            Grade a Card
-          </button>
         </header>
 
         {/* Stats */}
