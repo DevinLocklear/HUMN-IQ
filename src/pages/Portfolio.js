@@ -21,7 +21,7 @@ export default function Portfolio({ session }) {
     setSearching(true);
     try {
       // Use partial match without quotes for broader results
-      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${encodeURIComponent(query + '*')}&pageSize=10&orderBy=-set.releaseDate`);
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:%22${encodeURIComponent(query)}*%22&pageSize=10&orderBy=-set.releaseDate`);
       const data = await res.json();
       setSearchResults(data?.data || []);
     } catch (e) { setSearchResults([]); }
