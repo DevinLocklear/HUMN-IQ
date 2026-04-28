@@ -27,18 +27,20 @@ export default function Landing({ session }) {
     <div className="landing">
       {/* Nav */}
       <nav className="nav">
-        <div className="nav-logo">
-          <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" className="nav-logo-img" />
-          HUMN <span className="nav-iq">IQ</span>
+        <div className="nav-inner">
+          <div className="nav-logo">
+            <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" className="nav-logo-img" />
+            HUMN <span className="nav-iq">IQ</span>
+          </div>
+          <div className="nav-links">
+            <a href="#how">How It Works</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <button className="btn-hero" onClick={() => navigate(session ? '/dashboard' : '/auth')}>
+            {session ? 'Dashboard' : 'Get Started'}
+          </button>
         </div>
-        <div className="nav-links">
-          <a href="#how">How It Works</a>
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-        </div>
-        <button className="btn-hero" onClick={() => navigate(session ? '/dashboard' : '/auth')}>
-          {session ? 'Dashboard' : 'Get Started'}
-        </button>
       </nav>
 
       {/* Hero */}
@@ -70,10 +72,15 @@ export default function Landing({ session }) {
         </div>
         <div className="hero-visual">
           <div className="hero-card-stack">
-            <div className="hero-card card-3" />
-            <div className="hero-card card-2" />
+            <div className="hero-card card-3">
+              <img src="https://images.pokemontcg.io/sv3pt5/18_hires.png" alt="Pokemon Card" className="hero-card-img" />
+            </div>
+            <div className="hero-card card-2">
+              <img src="https://images.pokemontcg.io/sv2/245_hires.png" alt="Pokemon Card" className="hero-card-img" />
+            </div>
             <div className="hero-card card-1">
               <div className="hero-card-glow" />
+              <img src="https://images.pokemontcg.io/sv3pt5/191_hires.png" alt="Pokemon Card" className="hero-card-img" />
               <div className="hero-card-label">PSA 10</div>
             </div>
           </div>
