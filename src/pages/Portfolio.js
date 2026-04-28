@@ -12,7 +12,6 @@ export default function Portfolio({ session }) {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [fetchingPrice, setFetchingPrice] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null);
@@ -295,8 +294,8 @@ export default function Portfolio({ session }) {
                     <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.purchase_price} onChange={e => setForm({...form, purchase_price: e.target.value})} />
                   </div>
                   <div className="field">
-                    <label className="field-label">Current Value ($) {fetchingPrice && <span style={{color:'var(--pink)',fontSize:11}}>Fetching...</span>}</label>
-                    <input className="field-input" type="number" step="0.01" placeholder={fetchingPrice ? "Fetching market price..." : "0.00"} value={form.current_value} onChange={e => setForm({...form, current_value: e.target.value})} />
+                    <label className="field-label">Current Value ($)</label>
+                    <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.current_value} onChange={e => setForm({...form, current_value: e.target.value})} />
                   </div>
                 </div>
                 <div className="field">
