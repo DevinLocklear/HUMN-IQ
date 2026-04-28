@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabase';
 import './Dashboard.css';
 
 const stats = [
@@ -20,6 +21,11 @@ const navItems = [
 
 export default function Dashboard() {
   const navigate = useNavigate();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate('/');
+  }
 
   return (
     <div className="dashboard">
@@ -50,6 +56,9 @@ export default function Dashboard() {
             <div className="plan-desc">3 grades remaining</div>
             <button className="btn-primary" style={{ width: '100%', marginTop: '12px', fontSize: '12px', padding: '10px' }}>
               Upgrade to Pro
+            </button>
+            <button onClick={handleLogout} style={{ width: '100%', marginTop: '8px', fontSize: '12px', padding: '10px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-muted)', cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
+              Sign Out
             </button>
           </div>
         </div>
