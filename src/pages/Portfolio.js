@@ -20,46 +20,58 @@ export default function Portfolio({ session }) {
     if (!query || query.length < 2) { setSearchResults([]); return; }
     setSearching(true);
     try {
-      if (attempt > 0) await new Promise(r => setTimeout(r, 600 * attempt));
+      if (attempt > 0) await new Promise(r => setTimeout(r, 500 * attempt));
 
-      // Extract core pokemon name for broader search
-      // "Mega Lucario EX" -> search "Lucario" to get all variants
-      const words = query.trim().split(' ');
-      const coreWord = words.find(w =>
-        !['mega', 'ex', 'gx', 'vmax', 'vstar', 'v', 'm', 'tag', 'team', 'prism', 'star', 'radiant', 'shiny'].includes(w.toLowerCase())
-      ) || words[0];
+      // Try both TCGdex and Pokemon TCG API in parallel for best coverage
+      const [tcgdexRes, ptcgRes] = await Promise.allSettled([
+        fetch(`https://api.tcgdex.net/v2/en/cards?name=${encodeURIComponent(query)}&pagination[page]=1&pagination[itemsPerPage]=20`)
+          .then(r => r.ok ? r.json() : []),
+        fetch(`https://api.pokemontcg.io/v2/cards?q=name:${encodeURIComponent(query)}*&pageSize=20&orderBy=-set.releaseDate`)
+          .then(r => r.ok ? r.json() : { data: [] })
+      ]);
 
-      // Run both full name and core name searches in parallel
-      const searches = [
-        `name:${encodeURIComponent(query)}*`,
-        `name:${encodeURIComponent(coreWord)}*`,
-      ];
+      const allCards = [];
 
-      const results = await Promise.all(
-        searches.map(q =>
-          fetch(`https://api.pokemontcg.io/v2/cards?q=${q}&pageSize=20&orderBy=-set.releaseDate`)
-            .then(r => r.ok ? r.json() : { data: [] })
-            .catch(() => ({ data: [] }))
-        )
-      );
+      // Add TCGdex results
+      if (tcgdexRes.status === 'fulfilled' && Array.isArray(tcgdexRes.value)) {
+        tcgdexRes.value.forEach(card => {
+          allCards.push({
+            id: `tcgdex-${card.id}`,
+            name: card.name,
+            number: card.localId,
+            set: { name: card.set?.name || '' },
+            images: { small: card.image ? `${card.image}/low.webp` : null },
+            tcgplayer: null,
+            _source: 'tcgdex'
+          });
+        });
+      }
 
-      // Combine and deduplicate
+      // Add Pokemon TCG API results
+      if (ptcgRes.status === 'fulfilled') {
+        (ptcgRes.value?.data || []).forEach(card => {
+          allCards.push({ ...card, _source: 'ptcg' });
+        });
+      }
+
+      // Deduplicate by name+set
       const seen = new Set();
-      const allCards = results.flatMap(d => d?.data || []).filter(c => {
-        if (seen.has(c.id)) return false;
-        seen.add(c.id);
+      const unique = allCards.filter(c => {
+        const key = `${c.name}-${c.set?.name}-${c.number}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
       });
 
-      // Sort - exact matches first
+      // Sort exact matches first
       const queryLower = query.toLowerCase();
-      allCards.sort((a, b) => {
-        const aMatch = a.name.toLowerCase().includes(queryLower) ? 0 : 1;
-        const bMatch = b.name.toLowerCase().includes(queryLower) ? 0 : 1;
-        return aMatch - bMatch;
+      unique.sort((a, b) => {
+        const aExact = a.name.toLowerCase() === queryLower ? 0 : 1;
+        const bExact = b.name.toLowerCase() === queryLower ? 0 : 1;
+        return aExact - bExact;
       });
 
-      setSearchResults(allCards.slice(0, 20));
+      setSearchResults(unique.slice(0, 20));
     } catch (e) { setSearchResults([]); }
     setSearching(false);
   }
@@ -85,6 +97,7 @@ export default function Portfolio({ session }) {
       card_name: card.name,
       set_name: card.set?.name || '',
       current_value: market ? market.toFixed(2) : f.current_value,
+      image_url: card.images?.small || null,
     }));
     setSearchResults([]);
   }
