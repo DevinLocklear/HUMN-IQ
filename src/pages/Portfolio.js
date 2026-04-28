@@ -20,7 +20,8 @@ export default function Portfolio({ session }) {
     if (!query || query.length < 2) { setSearchResults([]); return; }
     setSearching(true);
     try {
-      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:"${encodeURIComponent(query)}"&pageSize=8&orderBy=name`);
+      // Use partial match without quotes for broader results
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${encodeURIComponent(query + '*')}&pageSize=10&orderBy=-set.releaseDate`);
       const data = await res.json();
       setSearchResults(data?.data || []);
     } catch (e) { setSearchResults([]); }
@@ -29,10 +30,15 @@ export default function Portfolio({ session }) {
 
   function handleCardNameChange(e) {
     const val = e.target.value;
-    setForm({...form, card_name: val});
+    setForm(f => ({...f, card_name: val}));
     if (searchTimeout) clearTimeout(searchTimeout);
-    const t = setTimeout(() => searchCards(val), 300);
+    if (!val || val.length < 2) { setSearchResults([]); return; }
+    const t = setTimeout(() => searchCards(val), 500);
     setSearchTimeout(t);
+  }
+
+  function handleCardNameBlur() {
+    setTimeout(() => setSearchResults([]), 200);
   }
 
   function selectCard(card) {
@@ -251,7 +257,7 @@ export default function Portfolio({ session }) {
                 <div className="form-row">
                   <div className="field" style={{ position: 'relative' }}>
                     <label className="field-label">Card Name * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>
-                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={handleCardNameChange} autoComplete="off" required />
+                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={handleCardNameChange} onBlur={handleCardNameBlur} autoComplete="off" required />
                     {searchResults.length > 0 && (
                       <div className="card-search-dropdown">
                         {searchResults.map(card => {
