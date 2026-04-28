@@ -13,6 +13,9 @@ export default function Portfolio({ session }) {
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState(null);
+  const scanInputRef = React.useRef(null);
   const [searching, setSearching] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null);
 
@@ -74,6 +77,41 @@ export default function Portfolio({ session }) {
       setSearchResults(unique.slice(0, 20));
     } catch (e) { setSearchResults([]); }
     setSearching(false);
+  }
+
+  async function handleScan(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setScanning(true);
+    setScanError(null);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const base64 = ev.target.result.split(',')[1];
+        const mediaType = file.type;
+        const res = await fetch('/api/identify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: base64, mediaType }),
+        });
+        const data = await res.json();
+        if (data.found) {
+          setForm(f => ({
+            ...f,
+            card_name: data.name || f.card_name,
+            set_name: data.set || f.set_name,
+          }));
+          await searchCards(data.name);
+        } else {
+          setScanError('Could not identify card. Try manual entry.');
+        }
+        setScanning(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setScanError('Scan failed. Try again.');
+      setScanning(false);
+    }
   }
 
   function handleCardNameChange(e) {
@@ -303,6 +341,21 @@ export default function Portfolio({ session }) {
                 <button className="modal-close" onClick={() => setShowAdd(false)}>✕</button>
               </div>
               <form className="add-form" onSubmit={addCard}>
+                <div className="scan-section">
+                  <input
+                    ref={scanInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    style={{ display: 'none' }}
+                    onChange={handleScan}
+                  />
+                  <button type="button" className="btn-scan" onClick={() => scanInputRef.current?.click()} disabled={scanning}>
+                    {scanning ? '⏳ Identifying...' : '📷 Scan Card'}
+                  </button>
+                  {scanError && <div className="scan-error">{scanError}</div>}
+                  <div className="scan-divider">or enter manually</div>
+                </div>
                 <div className="form-row">
                   <div className="field" style={{ position: 'relative' }}>
                     <label className="field-label">Card Name * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>

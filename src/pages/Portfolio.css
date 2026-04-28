@@ -514,3 +514,49 @@ select.field-input {
   font-family: 'DM Mono', monospace;
   font-weight: 600;
 }
+
+/* Scan section */
+.scan-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.btn-scan {
+  width: 100%;
+  padding: 14px;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-light);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Syne', sans-serif;
+}
+
+.btn-scan:hover {
+  border-color: var(--pink);
+  color: var(--pink);
+}
+
+.btn-scan:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.scan-error {
+  font-size: 12px;
+  color: var(--red);
+}
+
+.scan-divider {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
