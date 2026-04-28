@@ -20,7 +20,7 @@ export default function Portfolio({ session }) {
     if (!query || query.length < 2) { setSearchResults([]); return; }
     setSearching(true);
     try {
-      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:%22${encodeURIComponent(query)}*%22&pageSize=20&orderBy=-set.releaseDate`);
+      const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=name:${encodeURIComponent(query)}*&pageSize=20&orderBy=-set.releaseDate`);
       if (res.status === 429 && attempt < 3) {
         await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
         return searchCards(query, attempt + 1);
