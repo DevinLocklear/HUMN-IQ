@@ -227,37 +227,38 @@ export default function Portfolio({ session }) {
             <button className="btn-primary" onClick={() => setShowAdd(true)} style={{ marginTop: 16 }}>+ Add Your First Card</button>
           </div>
         ) : (
-          <div className="cards-table">
-            <div className="table-header">
-              <div>Card</div>
-              <div>Condition</div>
-              <div>Qty</div>
-              <div>Cost</div>
-              <div>Value</div>
-              <div>Gain/Loss</div>
-              <div></div>
-            </div>
+          <div className="cards-list">
             {cards.map(card => {
-              const cost = (card.purchase_price || 0) * card.quantity;
-              const value = (card.current_value || 0) * card.quantity;
+              const cost = Number(card.purchase_price || 0) * card.quantity;
+              const value = Number(card.current_value || 0) * card.quantity;
               const gain = value - cost;
               const gainPct = cost > 0 ? ((gain / cost) * 100).toFixed(0) : null;
               return (
-                <div key={card.id} className="table-row">
-                  <div className="card-info">
-                    <div className="card-name">{card.card_name}</div>
-                    {card.set_name && <div className="card-set">{card.set_name}</div>}
+                <div key={card.id} className="card-row">
+                  <div className="card-row-main">
+                    <div className="card-row-name">{card.card_name}</div>
+                    {card.set_name && <div className="card-row-set">{card.set_name}</div>}
                   </div>
-                  <div><span className="condition-badge">{card.condition}</span></div>
-                  <div className="table-num">{card.quantity}</div>
-                  <div className="table-num">{card.purchase_price ? `$${cost.toFixed(2)}` : '—'}</div>
-                  <div className="table-num">{card.current_value ? `$${value.toFixed(2)}` : '—'}</div>
-                  <div className={`table-num ${gain > 0 ? 'positive' : gain < 0 ? 'negative' : ''}`}>
-                    {card.purchase_price && card.current_value ? `${gain >= 0 ? '+' : ''}$${gain.toFixed(2)}${gainPct ? ` (${gainPct}%)` : ''}` : '—'}
+                  <div className="card-row-badge">{card.condition}</div>
+                  <div className="card-row-stat">
+                    <div className="card-row-label">Qty</div>
+                    <div className="card-row-value">{card.quantity}</div>
                   </div>
-                  <div>
-                    <button className="delete-btn" onClick={() => deleteCard(card.id)}>✕</button>
+                  <div className="card-row-stat">
+                    <div className="card-row-label">Cost</div>
+                    <div className="card-row-value">{card.purchase_price ? `$${cost.toFixed(2)}` : '—'}</div>
                   </div>
+                  <div className="card-row-stat">
+                    <div className="card-row-label">Value</div>
+                    <div className="card-row-value">{card.current_value ? `$${value.toFixed(2)}` : '—'}</div>
+                  </div>
+                  <div className="card-row-stat">
+                    <div className="card-row-label">Gain/Loss</div>
+                    <div className={`card-row-value ${gain > 0 ? 'positive' : gain < 0 ? 'negative' : ''}`}>
+                      {card.purchase_price && card.current_value ? `${gain >= 0 ? '+' : ''}$${gain.toFixed(2)}${gainPct ? ` (${gainPct}%)` : ''}` : '—'}
+                    </div>
+                  </div>
+                  <button className="delete-btn" onClick={() => deleteCard(card.id)}>✕</button>
                 </div>
               );
             })}

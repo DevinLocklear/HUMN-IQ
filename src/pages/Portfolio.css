@@ -251,3 +251,79 @@ select.field-input {
   background-position: right 12px center;
   padding-right: 32px;
 }
+
+/* Card list layout */
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  transition: background 0.15s;
+}
+
+.card-row:last-child { border-bottom: none; }
+.card-row:hover { background: var(--bg-elevated); }
+
+.card-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-row-name {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-row-set {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.card-row-badge {
+  background: var(--accent-dim);
+  color: var(--pink);
+  border: 1px solid var(--accent-mid);
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+
+.card-row-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.card-row-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.card-row-value {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+}
+
+.card-row-value.positive { color: var(--green); }
+.card-row-value.negative { color: var(--red); }
