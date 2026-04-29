@@ -22,6 +22,7 @@ const faqs = [
 export default function Landing({ session }) {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState(null);
+  const [navDropOpen, setNavDropOpen] = useState(false);
 
   return (
     <div className="landing">
@@ -38,15 +39,28 @@ export default function Landing({ session }) {
             <a href="#pricing">Pricing</a>
           </div>
           {session ? (
-            <div className="nav-account" onClick={() => navigate('/dashboard')}>
+            <div className="nav-account" style={{position:'relative'}} onClick={() => setNavDropOpen(o => !o)}>
               {session.user?.user_metadata?.avatar_url
                 ? <img src={session.user.user_metadata.avatar_url} alt="avatar" className="nav-avatar" />
                 : <div className="nav-avatar-initial">{session.user?.email?.[0]?.toUpperCase() || '?'}</div>
               }
               <div className="nav-account-info">
-                <div className="nav-account-name">{session.user?.user_metadata?.full_name || session.user?.email?.split('@')[0]}</div>
-                <div className="nav-account-sub">Dashboard →</div>
+                <div className="nav-account-name">{session.user?.user_metadata?.full_name || session.user?.user_metadata?.name || session.user?.email?.split('@')[0]}</div>
+                <div className="nav-account-sub">▾</div>
               </div>
+              {navDropOpen && (
+                <div className="nav-dropdown">
+                  <div className="nav-dropdown-email">{session.user?.email}</div>
+                  <div className="nav-dropdown-divider" />
+                  <div className="nav-dropdown-item" onClick={() => navigate('/dashboard')}>Dashboard</div>
+                  <div className="nav-dropdown-item" onClick={() => navigate('/portfolio')}>Portfolio</div>
+                  <div className="nav-dropdown-item" onClick={() => navigate('/grade')}>Grade a Card</div>
+                  <div className="nav-dropdown-divider" />
+                  <div className="nav-dropdown-item upgrade" onClick={() => navigate('/dashboard')}>⚡ Upgrade to Pro</div>
+                  <div className="nav-dropdown-divider" />
+                  <div className="nav-dropdown-item signout" onClick={async () => { const { supabase } = await import('../supabase'); await supabase.auth.signOut(); window.location.reload(); }}>Sign Out</div>
+                </div>
+              )}
             </div>
           ) : (
             <button className="btn-hero" onClick={() => navigate('/auth')}>Get Started</button>
