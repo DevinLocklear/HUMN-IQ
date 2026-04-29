@@ -15,7 +15,7 @@ export default function Dashboard({ session }) {
   const navItems = [
     { icon: '◈', label: 'Card Grader', path: '/grade', active: false },
     { icon: '▣', label: 'Portfolio', path: '/portfolio', active: false },
-    { icon: '◎', label: 'ROI Calculator', path: '/roi', soon: true },
+    { icon: '◎', label: 'ROI Calculator', path: '/roi' },
     { icon: '▲', label: 'Market Prices', path: '/market', soon: true },
     { icon: '◉', label: 'Sealed Analysis', path: '/sealed', soon: true },
     { icon: '◐', label: 'Set Intelligence', path: '/sets', soon: true },
