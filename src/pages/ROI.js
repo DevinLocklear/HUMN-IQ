@@ -78,7 +78,8 @@ export default function ROI({ session }) {
   }
 
   function calculate() {
-    const rawPriceEach = form.pulled_from_pack ? 0 : (parseFloat(form.raw_price) || 0);
+    const rawPriceEach = parseFloat(form.raw_price) || 0;
+    const rawCostEach = form.pulled_from_pack ? 0 : rawPriceEach; // cost basis is 0 if pulled from pack
     const gradingCostEach = GRADING_COSTS[form.grading_company][form.grading_tier].cost;
     const shipping = parseFloat(form.shipping) || 15;
     const qty = parseInt(form.quantity) || 1;
@@ -89,7 +90,7 @@ export default function ROI({ session }) {
     const gradedValueEach = rawPriceEach * multiplier;
 
     // Total for all cards
-    const totalRaw = rawPriceEach * qty;
+    const totalRaw = rawCostEach * qty;
     const totalGrading = gradingCostEach * qty;
     const totalCost = totalRaw + totalGrading + shipping;
     const totalGradedValue = gradedValueEach * qty;
