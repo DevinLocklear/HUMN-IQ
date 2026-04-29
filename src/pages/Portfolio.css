@@ -665,3 +665,73 @@ select.field-input {
     border-radius: 0;
   }
 }
+/* Tabs */
+.portfolio-tabs {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  width: fit-content;
+}
+
+.tab {
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--bg-card);
+  border: none;
+  color: var(--text-muted);
+  font-family: 'Syne', sans-serif;
+  transition: all 0.15s;
+  border-right: 1px solid var(--border);
+}
+
+.tab:last-child { border-right: none; }
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--accent-dim);
+  color: var(--pink);
+}
+
+/* Detail modal grid */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-elevated);
+  padding: 14px 16px;
+}
+
+.detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.detail-value {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'DM Mono', monospace;
+}
+
+.detail-value.positive { color: var(--green); }
+.detail-value.negative { color: var(--red); }
+
+/* Mobile only - scan button hidden on desktop */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex;
+  }
+}

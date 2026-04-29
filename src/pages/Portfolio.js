@@ -15,6 +15,8 @@ export default function Portfolio({ session }) {
   const [searchResults, setSearchResults] = useState([]);
   const [scanning, setScanning] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('cards'); // cards | sealed
+  const [selectedCard, setSelectedCard] = useState(null);
   const [scanError, setScanError] = useState(null);
   const scanInputRef = React.useRef(null);
   const [searching, setSearching] = useState(false);
@@ -162,6 +164,8 @@ export default function Portfolio({ session }) {
     current_value: '',
     quantity: 1,
     notes: '',
+    purchase_date: '',
+    type: 'card', // card | sealed
   });
 
   useEffect(() => {
@@ -195,10 +199,12 @@ export default function Portfolio({ session }) {
       current_value: form.current_value ? parseFloat(form.current_value) : null,
       quantity: parseInt(form.quantity) || 1,
       notes: form.notes || null,
+      purchase_date: form.purchase_date || null,
+      type: form.type || 'card',
     });
 
     if (!error) {
-      setForm({ card_name: '', set_name: '', condition: 'Raw', purchase_price: '', current_value: '', quantity: 1, notes: '' });
+      setForm({ card_name: '', set_name: '', condition: 'Raw', purchase_price: '', current_value: '', quantity: 1, notes: '', purchase_date: '', type: activeTab === 'sealed' ? 'sealed' : 'card' });
       setShowAdd(false);
       fetchCards();
     }
@@ -210,16 +216,19 @@ export default function Portfolio({ session }) {
     fetchCards();
   }
 
+  // Filter by active tab
+  const filteredCards = cards.filter(c => activeTab === 'sealed' ? c.type === 'sealed' : c.type !== 'sealed');
+
   // Build chart data
-  const chartData = cards.map(card => ({
+  const chartData = filteredCards.map(card => ({
     name: card.card_name.slice(0, 12),
     cost: Number(card.purchase_price || 0) * card.quantity,
     value: Number(card.current_value || 0) * card.quantity,
   }));
 
   // Stats
-  const totalValue = cards.reduce((sum, c) => sum + ((c.current_value || 0) * c.quantity), 0);
-  const totalCost = cards.reduce((sum, c) => sum + ((c.purchase_price || 0) * c.quantity), 0);
+  const totalValue = filteredCards.reduce((sum, c) => sum + ((c.current_value || 0) * c.quantity), 0);
+  const totalCost = filteredCards.reduce((sum, c) => sum + ((c.purchase_price || 0) * c.quantity), 0);
   const totalGain = totalValue - totalCost;
   const gainPercent = totalCost > 0 ? ((totalGain / totalCost) * 100).toFixed(1) : 0;
 
@@ -269,9 +278,15 @@ export default function Portfolio({ session }) {
         <div className="portfolio-header">
           <div>
             <h1 className="portfolio-title">Portfolio</h1>
-            <p className="portfolio-sub">{cards.length} cards tracked</p>
+            <p className="portfolio-sub">{cards.length} items tracked</p>
           </div>
-          <button className="btn-primary" onClick={() => setShowAdd(true)}>+ Add Card</button>
+          <button className="btn-primary" onClick={() => { setForm(f => ({...f, type: activeTab === 'sealed' ? 'sealed' : 'card'})); setShowAdd(true); }}>+ Add {activeTab === 'sealed' ? 'Sealed' : 'Card'}</button>
+        </div>
+
+        {/* Tabs */}
+        <div className="portfolio-tabs">
+          <button className={`tab ${activeTab === 'cards' ? 'active' : ''}`} onClick={() => setActiveTab('cards')}>Singles</button>
+          <button className={`tab ${activeTab === 'sealed' ? 'active' : ''}`} onClick={() => setActiveTab('sealed')}>Sealed Product</button>
         </div>
 
         {/* Stats */}
@@ -340,6 +355,74 @@ export default function Portfolio({ session }) {
           </div>
         )}
 
+        {/* Card Detail Modal */}
+        {selectedCard && (
+          <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <div className="modal-header">
+                <div>
+                  <h2>{selectedCard.card_name}</h2>
+                  {selectedCard.set_name && <div style={{fontSize:13,color:'var(--text-muted)',marginTop:4}}>{selectedCard.set_name}</div>}
+                </div>
+                <button className="modal-close" onClick={() => setSelectedCard(null)}>✕</button>
+              </div>
+              <div style={{padding:'24px 28px',display:'flex',flexDirection:'column',gap:20}}>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <div className="detail-label">Condition</div>
+                    <div className="detail-value">{selectedCard.condition || '—'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Quantity</div>
+                    <div className="detail-value">{selectedCard.quantity}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Purchase Price</div>
+                    <div className="detail-value">{selectedCard.purchase_price ? `$${(selectedCard.purchase_price * selectedCard.quantity).toFixed(2)}` : '—'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Current Value</div>
+                    <div className="detail-value" style={{color:'var(--pink)'}}>{selectedCard.current_value ? `$${(selectedCard.current_value * selectedCard.quantity).toFixed(2)}` : '—'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Gain / Loss</div>
+                    <div className={`detail-value ${(selectedCard.current_value - selectedCard.purchase_price) >= 0 ? 'positive' : 'negative'}`}>
+                      {selectedCard.purchase_price && selectedCard.current_value
+                        ? `${((selectedCard.current_value - selectedCard.purchase_price) * selectedCard.quantity) >= 0 ? '+' : ''}$${((selectedCard.current_value - selectedCard.purchase_price) * selectedCard.quantity).toFixed(2)}`
+                        : '—'}
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Return</div>
+                    <div className={`detail-value ${(selectedCard.current_value - selectedCard.purchase_price) >= 0 ? 'positive' : 'negative'}`}>
+                      {selectedCard.purchase_price && selectedCard.current_value
+                        ? `${(((selectedCard.current_value - selectedCard.purchase_price) / selectedCard.purchase_price) * 100).toFixed(1)}%`
+                        : '—'}
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Purchase Date</div>
+                    <div className="detail-value">{selectedCard.purchase_date ? new Date(selectedCard.purchase_date).toLocaleDateString() : '—'}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">Added</div>
+                    <div className="detail-value">{new Date(selectedCard.created_at).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                {selectedCard.notes && (
+                  <div>
+                    <div className="detail-label">Notes</div>
+                    <div style={{fontSize:14,color:'var(--text-muted)',marginTop:6}}>{selectedCard.notes}</div>
+                  </div>
+                )}
+                <button className="btn-ghost" style={{color:'var(--red)',borderColor:'var(--red)'}} onClick={() => { deleteCard(selectedCard.id); setSelectedCard(null); }}>
+                  Delete Card
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Add Card Modal */}
         {showAdd && (
           <div className="modal-overlay" onClick={() => setShowAdd(false)}>
@@ -349,7 +432,7 @@ export default function Portfolio({ session }) {
                 <button className="modal-close" onClick={() => setShowAdd(false)}>✕</button>
               </div>
               <form className="add-form" onSubmit={addCard}>
-                <div className="scan-section">
+                <div className="scan-section mobile-only">
                   <input
                     ref={scanInputRef}
                     type="file"
@@ -414,9 +497,15 @@ export default function Portfolio({ session }) {
                     <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.current_value} onChange={e => setForm({...form, current_value: e.target.value})} />
                   </div>
                 </div>
-                <div className="field">
-                  <label className="field-label">Notes</label>
-                  <input className="field-input" placeholder="Optional notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
+                <div className="form-row">
+                  <div className="field">
+                    <label className="field-label">Purchase Date</label>
+                    <input className="field-input" type="date" value={form.purchase_date} onChange={e => setForm({...form, purchase_date: e.target.value})} />
+                  </div>
+                  <div className="field">
+                    <label className="field-label">Notes</label>
+                    <input className="field-input" placeholder="Optional notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
+                  </div>
                 </div>
                 <div className="form-actions">
                   <button type="button" className="btn-ghost" onClick={() => setShowAdd(false)}>Cancel</button>
@@ -430,7 +519,7 @@ export default function Portfolio({ session }) {
         {/* Cards Table */}
         {loading ? (
           <div className="portfolio-empty"><div className="loading-spinner" /></div>
-        ) : cards.length === 0 ? (
+        ) : filteredCards.length === 0 ? (
           <div className="portfolio-empty">
             <div className="empty-icon">▣</div>
             <p>No cards in your portfolio yet</p>
@@ -439,13 +528,13 @@ export default function Portfolio({ session }) {
           </div>
         ) : (
           <div className="cards-list">
-            {cards.map(card => {
+            {filteredCards.map(card => {
               const cost = Number(card.purchase_price || 0) * card.quantity;
               const value = Number(card.current_value || 0) * card.quantity;
               const gain = value - cost;
               const gainPct = cost > 0 ? ((gain / cost) * 100).toFixed(0) : null;
               return (
-                <div key={card.id} className="card-row" onMouseEnter={() => fetchCardImage(card.card_name, card.id)}>
+                <div key={card.id} className="card-row" onMouseEnter={() => fetchCardImage(card.card_name, card.id)} onClick={() => setSelectedCard(card)} style={{cursor:'pointer'}}>
                   {cardImages[card.id]
                     ? <img src={cardImages[card.id]} alt={card.card_name} className="card-row-img" />
                     : <div className="card-row-img-placeholder">▣</div>
