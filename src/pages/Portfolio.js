@@ -5,6 +5,7 @@ import { supabase } from '../supabase';
 import './Portfolio.css';
 
 const CONDITIONS = ['Raw', 'PSA 10', 'PSA 9', 'PSA 8', 'PSA 7', 'PSA 6', 'BGS 10', 'BGS 9.5', 'BGS 9', 'CGC 10', 'CGC 9.5'];
+const SEALED_CONDITIONS = ['Sealed'];
 
 export default function Portfolio({ session }) {
   const navigate = useNavigate();
@@ -46,7 +47,12 @@ export default function Portfolio({ session }) {
   ].sort();
   const [scanning, setScanning] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('cards'); // cards | sealed
+  const [activeTab, setActiveTab] = useState('cards');
+
+  function switchTab(tab) {
+    setActiveTab(tab);
+    setForm(f => ({ ...f, condition: tab === 'sealed' ? 'Sealed' : 'Raw', type: tab === 'sealed' ? 'sealed' : 'card' }));
+  } // cards | sealed
   const [selectedCard, setSelectedCard] = useState(null);
   const [scanError, setScanError] = useState(null);
   const scanInputRef = React.useRef(null);
@@ -148,6 +154,17 @@ export default function Portfolio({ session }) {
     }
   }
 
+  async function fetchSealedPrice(productName) {
+    if (!productName) return;
+    try {
+      const res = await fetch(`/api/sealed-price?query=${encodeURIComponent(productName)}`);
+      const data = await res.json();
+      if (data.price) {
+        setForm(f => ({ ...f, current_value: data.price }));
+      }
+    } catch (e) {}
+  }
+
   function handleCardNameChange(e) {
     const val = e.target.value;
     setForm(f => ({...f, card_name: val}));
@@ -173,6 +190,7 @@ export default function Portfolio({ session }) {
     if (card._sealed) {
       setForm(f => ({ ...f, card_name: card.name }));
       setSearchResults([]);
+      fetchSealedPrice(card.name);
       return;
     }
     const prices = card.tcgplayer?.prices;
@@ -329,8 +347,8 @@ export default function Portfolio({ session }) {
 
         {/* Tabs */}
         <div className="portfolio-tabs">
-          <button className={`tab ${activeTab === 'cards' ? 'active' : ''}`} onClick={() => setActiveTab('cards')}>Singles</button>
-          <button className={`tab ${activeTab === 'sealed' ? 'active' : ''}`} onClick={() => setActiveTab('sealed')}>Sealed Product</button>
+          <button className={`tab ${activeTab === 'cards' ? 'active' : ''}`} onClick={() => switchTab('cards')}>Singles</button>
+          <button className={`tab ${activeTab === 'sealed' ? 'active' : ''}`} onClick={() => switchTab('sealed')}>Sealed Product</button>
         </div>
 
         {/* Stats */}
@@ -495,7 +513,7 @@ export default function Portfolio({ session }) {
                   <div className="form-row">
                     <div className="field" style={{ position: 'relative' }}>
                       <label className="field-label">Product Name *</label>
-                      <input className="field-input" placeholder="e.g. Prismatic Evolutions ETB" value={form.card_name} onChange={handleCardNameChange} onBlur={handleCardNameBlur} autoComplete="off" required />
+                      <input className="field-input" placeholder="e.g. Prismatic Evolutions ETB" value={form.card_name} onChange={handleCardNameChange} onBlur={e => { handleCardNameBlur(); if (e.target.value) fetchSealedPrice(e.target.value); }} autoComplete="off" required />
                       {searchResults.length > 0 && (
                         <div className="card-search-dropdown">
                           {searchResults.map(card => (
@@ -545,12 +563,9 @@ export default function Portfolio({ session }) {
                 )}
                 <div className="form-row">
                   <div className="field">
-                    <label className="field-label">{activeTab === 'sealed' ? 'Status' : 'Condition'}</label>
+                    <label className="field-label">Condition</label>
                     <select className="field-input" value={form.condition} onChange={e => setForm({...form, condition: e.target.value})}>
-                      {activeTab === 'sealed'
-                        ? ['Sealed', 'Opened'].map(c => <option key={c}>{c}</option>)
-                        : CONDITIONS.map(c => <option key={c}>{c}</option>)
-                      }
+                      {(activeTab === 'sealed' ? SEALED_CONDITIONS : CONDITIONS).map(c => <option key={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="field">
