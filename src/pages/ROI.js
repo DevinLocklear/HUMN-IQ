@@ -34,7 +34,7 @@ export default function ROI({ session }) {
   const [form, setForm] = useState({
     card_name: '',
     raw_price: '',
-    pulled_from_pack: false,
+    purchase_price: '',
     predicted_grade: '9',
     grading_company: 'PSA',
     grading_tier: 0,
@@ -79,7 +79,8 @@ export default function ROI({ session }) {
 
   function calculate() {
     const rawPriceEach = parseFloat(form.raw_price) || 0;
-    const rawCostEach = form.pulled_from_pack ? 0 : rawPriceEach; // cost basis is 0 if pulled from pack
+    const purchasePriceEach = form.purchase_price !== '' ? parseFloat(form.purchase_price) : rawPriceEach;
+    const rawCostEach = purchasePriceEach; // use purchase price as cost basis (0 if pack pull)
     const gradingCostEach = GRADING_COSTS[form.grading_company][form.grading_tier].cost;
     const shipping = parseFloat(form.shipping) || 15;
     const qty = parseInt(form.quantity) || 1;
@@ -191,16 +192,17 @@ export default function ROI({ session }) {
               )}
             </div>
 
-            <div className="pulled-toggle" onClick={() => setForm(f => ({ ...f, pulled_from_pack: !f.pulled_from_pack }))}>
-              <div className={`toggle-switch ${form.pulled_from_pack ? 'on' : ''}`}><div className="toggle-knob" /></div>
-              <span>Pulled from pack (cost = $0)</span>
-            </div>
-
             <div className="roi-row">
               <div className="field">
-                <label className="field-label">Raw Price ($)</label>
-                <input className="field-input" type="number" step="0.01" placeholder={form.pulled_from_pack ? "Pulled from pack" : "0.00"} value={form.raw_price} disabled={form.pulled_from_pack} onChange={e => setForm(f => ({ ...f, raw_price: e.target.value }))} style={form.pulled_from_pack ? { opacity: 0.4 } : {}} />
+                <label className="field-label">Raw Market Price ($)</label>
+                <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.raw_price} onChange={e => setForm(f => ({ ...f, raw_price: e.target.value }))} />
               </div>
+              <div className="field">
+                <label className="field-label">Purchase Price ($) <span style={{color:'var(--text-dim)',fontWeight:400,textTransform:'none',fontSize:10}}>0 if pack pull</span></label>
+                <input className="field-input" type="number" step="0.01" placeholder="What you paid" value={form.purchase_price} onChange={e => setForm(f => ({ ...f, purchase_price: e.target.value }))} />
+              </div>
+            </div>
+            <div className="roi-row">
               <div className="field">
                 <label className="field-label">Quantity</label>
                 <input className="field-input" type="number" min="1" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} />
@@ -266,8 +268,12 @@ export default function ROI({ session }) {
                   <div className="roi-section-label">Breakdown</div>
                   <div className="breakdown-grid">
                     <div className="breakdown-item">
-                      <div className="breakdown-label">Raw Value</div>
-                      <div className="breakdown-value">{form.pulled_from_pack ? 'Pack Pull' : `$${result.rawPrice.toFixed(2)}`}</div>
+                      <div className="breakdown-label">Market Value</div>
+                      <div className="breakdown-value">${(result.rawPriceEach * result.qty).toFixed(2)}</div>
+                    </div>
+                    <div className="breakdown-item">
+                      <div className="breakdown-label">Purchase Cost</div>
+                      <div className="breakdown-value">{result.rawPrice === 0 ? 'Pack Pull ($0)' : `$${result.rawPrice.toFixed(2)}`}</div>
                     </div>
                     <div className="breakdown-item">
                       <div className="breakdown-label">Grading Cost</div>
