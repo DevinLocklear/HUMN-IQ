@@ -198,7 +198,7 @@ export default function ROI({ session }) {
                 <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.raw_price} onChange={e => setForm(f => ({ ...f, raw_price: e.target.value }))} />
               </div>
               <div className="field">
-                <label className="field-label">Purchase Price ($) <span style={{color:'var(--text-dim)',fontWeight:400,textTransform:'none',fontSize:10}}>0 if pack pull</span></label>
+                <label className="field-label">Purchase Price ($)</label>
                 <input className="field-input" type="number" step="0.01" placeholder="What you paid" value={form.purchase_price} onChange={e => setForm(f => ({ ...f, purchase_price: e.target.value }))} />
               </div>
             </div>
@@ -207,7 +207,9 @@ export default function ROI({ session }) {
                 <label className="field-label">Quantity</label>
                 <input className="field-input" type="number" min="1" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} />
               </div>
+              <div className="field" />
             </div>
+
 
             <div className="roi-section-label" style={{ marginTop: 8 }}>Grading Details</div>
 
@@ -273,7 +275,7 @@ export default function ROI({ session }) {
                     </div>
                     <div className="breakdown-item">
                       <div className="breakdown-label">Purchase Cost</div>
-                      <div className="breakdown-value">{result.rawPrice === 0 ? 'Pack Pull ($0)' : `$${result.rawPrice.toFixed(2)}`}</div>
+                      <div className="breakdown-value negative">{result.rawPrice === 0 ? '$0.00' : `-$${result.rawPrice.toFixed(2)}`}</div>
                     </div>
                     <div className="breakdown-item">
                       <div className="breakdown-label">Grading Cost</div>
