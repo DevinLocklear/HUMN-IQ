@@ -100,6 +100,7 @@ export default function ROI({ session }) {
 
     setResult({
       rawPrice: totalRaw,
+      rawPriceEach,
       gradedValue: totalGradedValue,
       gradingCost: totalGrading,
       shipping,
@@ -109,7 +110,6 @@ export default function ROI({ session }) {
       worthSubmitting,
       multiplier,
       qty,
-      rawPriceEach,
       gradingCostEach,
       gradedValueEach,
     });
@@ -313,7 +313,7 @@ export default function ROI({ session }) {
                   <div className="roi-section-label">Grade Value Estimates</div>
                   <div className="grade-estimates">
                     {Object.entries(GRADE_MULTIPLIERS[form.grading_company]).map(([grade, mult]) => {
-                      const val = result.rawPrice * mult;
+                      const val = result.rawPriceEach * mult * result.qty;
                       const prof = val - result.totalCost;
                       return (
                         <div key={grade} className={`grade-estimate-row ${parseFloat(grade) === parseFloat(form.predicted_grade) ? 'active' : ''}`}>
