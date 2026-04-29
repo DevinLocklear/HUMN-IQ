@@ -472,7 +472,7 @@ export default function Portfolio({ session }) {
           <div className="modal-overlay" onClick={() => setShowAdd(false)}>
             <div className="modal" onClick={e => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>Add Card</h2>
+                <h2>{activeTab === 'sealed' ? 'Add Sealed Product' : 'Add Card'}</h2>
                 <button className="modal-close" onClick={() => setShowAdd(false)}>✕</button>
               </div>
               <form className="add-form" onSubmit={addCard}>
@@ -491,9 +491,32 @@ export default function Portfolio({ session }) {
                   {scanError && <div className="scan-error">{scanError}</div>}
                   <div className="scan-divider">or enter manually</div>
                 </div>
+                {activeTab === 'sealed' ? (
+                  <div className="form-row">
+                    <div className="field" style={{ position: 'relative' }}>
+                      <label className="field-label">Product Name *</label>
+                      <input className="field-input" placeholder="e.g. Prismatic Evolutions ETB" value={form.card_name} onChange={handleCardNameChange} onBlur={handleCardNameBlur} autoComplete="off" required />
+                      {searchResults.length > 0 && (
+                        <div className="card-search-dropdown">
+                          {searchResults.map(card => (
+                            <div key={card.id} className="card-search-result" onClick={() => selectCard(card)}>
+                              <div className="card-search-info">
+                                <div className="card-search-name">{card.name}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="field">
+                      <label className="field-label">Set / Series</label>
+                      <input className="field-input" placeholder="e.g. Scarlet & Violet" value={form.set_name} onChange={e => setForm({...form, set_name: e.target.value})} />
+                    </div>
+                  </div>
+                ) : (
                 <div className="form-row">
                   <div className="field" style={{ position: 'relative' }}>
-                    <label className="field-label">{activeTab === 'sealed' ? 'Product Name' : 'Card Name'} * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>
+                    <label className="field-label">Card Name * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>
                     <input className="field-input" placeholder={activeTab === 'sealed' ? "e.g. Prismatic Evolutions ETB" : "e.g. Charizard ex"} value={form.card_name} onChange={handleCardNameChange} onBlur={handleCardNameBlur} autoComplete="off" required />
                     {searchResults.length > 0 && (
                       <div className="card-search-dropdown">
@@ -519,6 +542,7 @@ export default function Portfolio({ session }) {
                     <input className="field-input" placeholder="e.g. Prismatic Evolutions" value={form.set_name} onChange={e => setForm({...form, set_name: e.target.value})} />
                   </div>
                 </div>
+                )}
                 <div className="form-row">
                   <div className="field">
                     <label className="field-label">{activeTab === 'sealed' ? 'Status' : 'Condition'}</label>
@@ -571,7 +595,6 @@ export default function Portfolio({ session }) {
             <div className="empty-icon">▣</div>
             <p>{activeTab === 'sealed' ? 'No sealed products yet' : 'No cards in your portfolio yet'}</p>
             <p className="empty-sub">{activeTab === 'sealed' ? 'Add booster boxes, ETBs, tins and more' : 'Add your first card to start tracking your collection value'}</p>
-            <button className="btn-primary" onClick={() => setShowAdd(true)} style={{ marginTop: 16 }}>+ Add {activeTab === 'sealed' ? 'Sealed Product' : 'Your First Card'}</button>
           </div>
         ) : (
           <div className="cards-list">
