@@ -191,7 +191,7 @@ export default function ROI({ session }) {
               )}
             </div>
 
-            <div className="pulled-toggle" onClick={() => setForm(f => ({ ...f, pulled_from_pack: !f.pulled_from_pack, raw_price: !f.pulled_from_pack ? '' : f.raw_price }))}>
+            <div className="pulled-toggle" onClick={() => setForm(f => ({ ...f, pulled_from_pack: !f.pulled_from_pack }))}>
               <div className={`toggle-switch ${form.pulled_from_pack ? 'on' : ''}`}><div className="toggle-knob" /></div>
               <span>Pulled from pack (cost = $0)</span>
             </div>
