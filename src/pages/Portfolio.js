@@ -13,6 +13,37 @@ export default function Portfolio({ session }) {
   const [showAdd, setShowAdd] = useState(false);
   const [saving, setSaving] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const SEALED_PRODUCTS = [
+    'Prismatic Evolutions Elite Trainer Box',
+    'Prismatic Evolutions Booster Bundle',
+    'Prismatic Evolutions Booster Box',
+    'Surging Sparks Elite Trainer Box',
+    'Surging Sparks Booster Box',
+    'Stellar Crown Elite Trainer Box',
+    'Stellar Crown Booster Box',
+    'Twilight Masquerade Elite Trainer Box',
+    'Twilight Masquerade Booster Box',
+    'Temporal Forces Elite Trainer Box',
+    'Temporal Forces Booster Box',
+    'Paradox Rift Elite Trainer Box',
+    'Paradox Rift Booster Box',
+    'Obsidian Flames Elite Trainer Box',
+    'Obsidian Flames Booster Box',
+    'Paldea Evolved Elite Trainer Box',
+    'Scarlet & Violet Base Set Booster Box',
+    'Crown Zenith Elite Trainer Box',
+    'Silver Tempest Elite Trainer Box',
+    'Lost Origin Elite Trainer Box',
+    'Pokemon GO Elite Trainer Box',
+    'Brilliant Stars Elite Trainer Box',
+    'Fusion Strike Elite Trainer Box',
+    'Celebrations Ultra Premium Collection',
+    'Shining Fates Elite Trainer Box',
+    'Evolving Skies Elite Trainer Box',
+    'Chilling Reign Elite Trainer Box',
+    'Battle Styles Elite Trainer Box',
+    'Mega Evolutions Ascended Heroes ETB',
+  ].sort();
   const [scanning, setScanning] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('cards'); // cards | sealed
@@ -122,6 +153,14 @@ export default function Portfolio({ session }) {
     setForm(f => ({...f, card_name: val}));
     if (searchTimeout) clearTimeout(searchTimeout);
     if (!val || val.length < 2) { setSearchResults([]); return; }
+
+    if (activeTab === 'sealed') {
+      // Filter sealed product list locally
+      const matches = SEALED_PRODUCTS.filter(p => p.toLowerCase().includes(val.toLowerCase())).slice(0, 10);
+      setSearchResults(matches.map(name => ({ id: name, name, _sealed: true })));
+      return;
+    }
+
     const t = setTimeout(() => searchCards(val), 500);
     setSearchTimeout(t);
   }
@@ -131,6 +170,11 @@ export default function Portfolio({ session }) {
   }
 
   function selectCard(card) {
+    if (card._sealed) {
+      setForm(f => ({ ...f, card_name: card.name }));
+      setSearchResults([]);
+      return;
+    }
     const prices = card.tcgplayer?.prices;
     const market = prices?.holofoil?.market || prices?.normal?.market || prices?.reverseHolofoil?.market || prices?.['1stEditionHolofoil']?.market || null;
     setForm(f => ({
@@ -432,7 +476,7 @@ export default function Portfolio({ session }) {
                 <button className="modal-close" onClick={() => setShowAdd(false)}>✕</button>
               </div>
               <form className="add-form" onSubmit={addCard}>
-                <div className="scan-section mobile-only">
+                <div className={`scan-section ${activeTab === 'sealed' ? '' : 'mobile-only'}`}>
                   <input
                     ref={scanInputRef}
                     type="file"
@@ -442,15 +486,15 @@ export default function Portfolio({ session }) {
                     onChange={handleScan}
                   />
                   <button type="button" className="btn-scan" onClick={() => scanInputRef.current?.click()} disabled={scanning}>
-                    {scanning ? '⏳ Identifying...' : '📷 Scan Card'}
+                    {scanning ? '⏳ Identifying...' : activeTab === 'sealed' ? '📷 Scan Product' : '📷 Scan Card'}
                   </button>
                   {scanError && <div className="scan-error">{scanError}</div>}
                   <div className="scan-divider">or enter manually</div>
                 </div>
                 <div className="form-row">
                   <div className="field" style={{ position: 'relative' }}>
-                    <label className="field-label">Card Name * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>
-                    <input className="field-input" placeholder="e.g. Charizard ex" value={form.card_name} onChange={handleCardNameChange} onBlur={handleCardNameBlur} autoComplete="off" required />
+                    <label className="field-label">{activeTab === 'sealed' ? 'Product Name' : 'Card Name'} * {searching && <span style={{color:'var(--pink)',fontSize:11}}>Searching...</span>}</label>
+                    <input className="field-input" placeholder={activeTab === 'sealed' ? "e.g. Prismatic Evolutions ETB" : "e.g. Charizard ex"} value={form.card_name} onChange={handleCardNameChange} onBlur={handleCardNameBlur} autoComplete="off" required />
                     {searchResults.length > 0 && (
                       <div className="card-search-dropdown">
                         {searchResults.map(card => {
@@ -477,9 +521,12 @@ export default function Portfolio({ session }) {
                 </div>
                 <div className="form-row">
                   <div className="field">
-                    <label className="field-label">Condition</label>
+                    <label className="field-label">{activeTab === 'sealed' ? 'Status' : 'Condition'}</label>
                     <select className="field-input" value={form.condition} onChange={e => setForm({...form, condition: e.target.value})}>
-                      {CONDITIONS.map(c => <option key={c}>{c}</option>)}
+                      {activeTab === 'sealed'
+                        ? ['Sealed', 'Opened'].map(c => <option key={c}>{c}</option>)
+                        : CONDITIONS.map(c => <option key={c}>{c}</option>)
+                      }
                     </select>
                   </div>
                   <div className="field">
@@ -522,9 +569,9 @@ export default function Portfolio({ session }) {
         ) : filteredCards.length === 0 ? (
           <div className="portfolio-empty">
             <div className="empty-icon">▣</div>
-            <p>No cards in your portfolio yet</p>
-            <p className="empty-sub">Add your first card to start tracking your collection value</p>
-            <button className="btn-primary" onClick={() => setShowAdd(true)} style={{ marginTop: 16 }}>+ Add Your First Card</button>
+            <p>{activeTab === 'sealed' ? 'No sealed products yet' : 'No cards in your portfolio yet'}</p>
+            <p className="empty-sub">{activeTab === 'sealed' ? 'Add booster boxes, ETBs, tins and more' : 'Add your first card to start tracking your collection value'}</p>
+            <button className="btn-primary" onClick={() => setShowAdd(true)} style={{ marginTop: 16 }}>+ Add {activeTab === 'sealed' ? 'Sealed Product' : 'Your First Card'}</button>
           </div>
         ) : (
           <div className="cards-list">
