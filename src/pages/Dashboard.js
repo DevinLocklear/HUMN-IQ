@@ -22,7 +22,6 @@ const navItems = [
 export default function Dashboard({ session }) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [accountOpen, setAccountOpen] = React.useState(false);
 
   async function handleLogout() {
     await supabase.auth.signOut();
