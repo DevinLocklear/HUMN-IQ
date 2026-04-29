@@ -77,32 +77,39 @@ export default function ROI({ session }) {
   }
 
   function calculate() {
-    const rawPrice = parseFloat(form.raw_price) || 0;
-    const gradingCost = GRADING_COSTS[form.grading_company][form.grading_tier].cost;
+    const rawPriceEach = parseFloat(form.raw_price) || 0;
+    const gradingCostEach = GRADING_COSTS[form.grading_company][form.grading_tier].cost;
     const shipping = parseFloat(form.shipping) || 15;
     const qty = parseInt(form.quantity) || 1;
     const grade = parseFloat(form.predicted_grade);
     const multiplier = GRADE_MULTIPLIERS[form.grading_company][grade] || 1;
 
-    const gradedValue = rawPrice * multiplier;
-    const totalCost = rawPrice + gradingCost + shipping;
-    const profit = (gradedValue - totalCost) * qty;
-    const roi = totalCost > 0 ? ((gradedValue - totalCost) / totalCost) * 100 : 0;
-    const breakEven = totalCost;
+    // Per card
+    const gradedValueEach = rawPriceEach * multiplier;
+
+    // Total for all cards
+    const totalRaw = rawPriceEach * qty;
+    const totalGrading = gradingCostEach * qty;
+    const totalCost = totalRaw + totalGrading + shipping;
+    const totalGradedValue = gradedValueEach * qty;
+    const profit = totalGradedValue - totalCost;
+    const roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
     const worthSubmitting = profit > 0 && roi > 15;
 
     setResult({
-      rawPrice,
-      gradedValue,
-      gradingCost,
+      rawPrice: totalRaw,
+      gradedValue: totalGradedValue,
+      gradingCost: totalGrading,
       shipping,
       totalCost,
-      profit: profit,
+      profit,
       roi,
-      breakEven,
       worthSubmitting,
       multiplier,
       qty,
+      rawPriceEach,
+      gradingCostEach,
+      gradedValueEach,
     });
   }
 
