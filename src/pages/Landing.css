@@ -154,11 +154,7 @@
 .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
 .footer-logo span { color: var(--pink); }
 .footer-logo-img { width: 28px; height: 28px; object-fit: contain; }
-.footer-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.3);
-  text-align: center;
-}
+.footer-sub { font-size: 12px; color: rgba(255,255,255,0.3); }
 .footer-links { display: flex; gap: 24px; }
 .footer-links a { font-size: 12px; color: rgba(255,255,255,0.3); font-family: 'DM Mono', monospace; transition: color 0.15s; }
 .footer-links a:hover { color: var(--pink); }
@@ -177,4 +173,59 @@
   .pricing-cards { grid-template-columns: 1fr; }
   .footer { padding: 32px 24px; }
   .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+}
+
+/* Nav account */
+.nav-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: border-color 0.15s;
+}
+
+.nav-account:hover {
+  border-color: var(--pink);
+}
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--pink);
+}
+
+.nav-avatar-initial {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--prism);
+  background-size: 200% 200%;
+  animation: prismShift 4s ease infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.nav-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.nav-account-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.nav-account-sub {
+  font-size: 11px;
+  color: var(--pink);
 }

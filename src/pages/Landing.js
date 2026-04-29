@@ -37,9 +37,20 @@ export default function Landing({ session }) {
             <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
           </div>
-          <button className="btn-hero" onClick={() => navigate(session ? '/dashboard' : '/auth')}>
-            {session ? 'Dashboard' : 'Get Started'}
-          </button>
+          {session ? (
+            <div className="nav-account" onClick={() => navigate('/dashboard')}>
+              {session.user?.user_metadata?.avatar_url
+                ? <img src={session.user.user_metadata.avatar_url} alt="avatar" className="nav-avatar" />
+                : <div className="nav-avatar-initial">{session.user?.email?.[0]?.toUpperCase() || '?'}</div>
+              }
+              <div className="nav-account-info">
+                <div className="nav-account-name">{session.user?.user_metadata?.full_name || session.user?.email?.split('@')[0]}</div>
+                <div className="nav-account-sub">Dashboard →</div>
+              </div>
+            </div>
+          ) : (
+            <button className="btn-hero" onClick={() => navigate('/auth')}>Get Started</button>
+          )}
         </div>
       </nav>
 
