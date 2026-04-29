@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Grader from './pages/Grader';
 import Auth from './pages/Auth';
 import Portfolio from './pages/Portfolio';
+import ROI from './pages/ROI';
 import './App.css';
 
 function PrivateRoute({ children, session, loading }) {
@@ -48,6 +49,7 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute session={session} loading={loading}><Dashboard session={session} /></PrivateRoute>} />
         <Route path="/grade" element={<PrivateRoute session={session} loading={loading}><Grader session={session} /></PrivateRoute>} />
         <Route path="/portfolio" element={<PrivateRoute session={session} loading={loading}><Portfolio session={session} /></PrivateRoute>} />
+        <Route path="/roi" element={<PrivateRoute session={session} loading={loading}><ROI session={session} /></PrivateRoute>} />
       </Routes>
     </Router>
   );

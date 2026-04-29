@@ -1,0 +1,268 @@
+.roi-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.roi-main {
+  margin-left: 240px;
+  flex: 1;
+  padding: 48px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.roi-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.roi-title { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+.roi-sub { font-size: 15px; color: var(--text-muted); margin-top: 4px; }
+
+/* Content layout */
+.roi-content {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.roi-inputs {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.roi-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.roi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Results */
+.roi-results {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Verdict */
+.roi-verdict {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 32px;
+  border: 1px solid;
+}
+
+.roi-verdict.yes {
+  background: rgba(0, 255, 136, 0.05);
+  border-color: rgba(0, 255, 136, 0.2);
+}
+
+.roi-verdict.no {
+  background: rgba(255, 68, 68, 0.05);
+  border-color: rgba(255, 68, 68, 0.2);
+}
+
+.verdict-icon {
+  font-size: 32px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.roi-verdict.yes .verdict-icon { color: var(--green); }
+.roi-verdict.no .verdict-icon { color: var(--red); }
+
+.verdict-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.verdict-sub { font-size: 14px; color: var(--text-muted); }
+
+/* Breakdown */
+.roi-breakdown {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.breakdown-item {
+  background: var(--bg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breakdown-item.highlight { background: var(--bg-elevated); }
+
+.breakdown-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.breakdown-value {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+}
+
+.breakdown-value.positive { color: var(--green); }
+.breakdown-value.negative { color: var(--red); }
+
+/* ROI bar */
+.roi-metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.roi-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.roi-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.roi-bar-fill {
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+.roi-bar-fill.positive { background: var(--green); }
+.roi-bar-fill.negative { background: var(--red); }
+
+.roi-percent {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  min-width: 80px;
+  text-align: right;
+}
+
+.roi-percent.positive { color: var(--green); }
+.roi-percent.negative { color: var(--red); }
+
+/* Grade estimates */
+.grade-estimates {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+}
+
+.grade-estimate-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-family: 'DM Mono', monospace;
+  transition: background 0.15s;
+}
+
+.grade-estimate-row:last-child { border-bottom: none; }
+.grade-estimate-row:hover { background: var(--bg-elevated); }
+.grade-estimate-row.active { background: var(--accent-dim); }
+.grade-estimate-row.active .grade-estimate-grade { color: var(--pink); }
+
+.grade-estimate-grade { font-weight: 600; }
+.grade-estimate-value { text-align: center; }
+.grade-estimate-profit { text-align: right; }
+.grade-estimate-profit.positive { color: var(--green); }
+.grade-estimate-profit.negative { color: var(--red); }
+
+/* Empty state */
+.roi-empty {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 80px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.roi-empty-icon { font-size: 48px; color: var(--text-dim); }
+.roi-empty p { font-size: 15px; color: var(--text-muted); font-weight: 500; }
+
+.roi-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.roi-tip {
+  font-size: 13px;
+  color: var(--text-dim);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+}
+
+/* Shared with Portfolio */
+.card-search-dropdown {
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  z-index: 100;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.card-search-result {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+.card-search-result:last-child { border-bottom: none; }
+.card-search-result:hover { background: var(--bg-card); }
+.card-search-img { width: 36px; height: 50px; object-fit: cover; border-radius: 3px; flex-shrink: 0; }
+.card-search-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.card-search-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-search-set { font-size: 11px; color: var(--text-muted); }
+.card-search-price { font-size: 12px; color: var(--pink); font-family: 'DM Mono', monospace; font-weight: 600; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.field-input { background: var(--bg-elevated); border: 1px solid var(--border-light); color: var(--text); padding: 12px 16px; font-size: 14px; outline: none; transition: border-color 0.15s; font-family: 'Syne', sans-serif; }
+.field-input:focus { border-color: var(--pink); }
+
+@media (max-width: 768px) {
+  .roi-main { margin-left: 0; padding: 72px 16px 24px; }
+  .roi-content { grid-template-columns: 1fr; }
+  .roi-row { grid-template-columns: 1fr; }
+}
