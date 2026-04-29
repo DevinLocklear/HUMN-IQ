@@ -14,6 +14,7 @@ export default function Portfolio({ session }) {
   const [saving, setSaving] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [scanning, setScanning] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scanError, setScanError] = useState(null);
   const scanInputRef = React.useRef(null);
   const [searching, setSearching] = useState(false);
@@ -224,8 +225,15 @@ export default function Portfolio({ session }) {
 
   return (
     <div className="portfolio">
+      {/* Mobile hamburger */}
+      <button className="hamburger" onClick={() => setSidebarOpen(true)}>☰</button>
+
+      {/* Overlay */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>✕</button>
         <div className="sidebar-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
           <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           HUMN <span>IQ</span>

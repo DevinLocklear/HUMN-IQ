@@ -21,6 +21,7 @@ const navItems = [
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -29,8 +30,10 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Sidebar */}
-      <aside className="sidebar">
+      <button className="hamburger" onClick={() => setSidebarOpen(true)}>☰</button>
+      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>✕</button>
         <div className="sidebar-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
           <img src="https://i.imgur.com/ywgtHOK.png" alt="HUMN IQ" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           HUMN <span>IQ</span>
