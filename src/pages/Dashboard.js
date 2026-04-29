@@ -22,6 +22,7 @@ const navItems = [
 export default function Dashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [accountOpen, setAccountOpen] = React.useState(false);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -73,6 +74,24 @@ export default function Dashboard() {
           <div>
             <h1 className="dash-title">Dashboard</h1>
             <p className="dash-sub">Welcome to HUMN IQ</p>
+          </div>
+          <div className="account-menu" style={{position:'relative'}}>
+            <button className="account-btn" onClick={() => setAccountOpen(o => !o)}>
+              <div className="account-avatar">{session?.user?.email?.[0]?.toUpperCase() || '?'}</div>
+              <div className="account-info">
+                <div className="account-email">{session?.user?.email || 'Account'}</div>
+                <div className="account-plan">Free Plan</div>
+              </div>
+              <span style={{color:'var(--text-muted)',fontSize:12}}>▾</span>
+            </button>
+            {accountOpen && (
+              <div className="account-dropdown">
+                <div className="account-dropdown-email">{session?.user?.email}</div>
+                <div className="account-dropdown-divider" />
+                <button className="account-dropdown-item">Upgrade to Pro</button>
+                <button className="account-dropdown-item" onClick={handleLogout}>Sign Out</button>
+              </div>
+            )}
           </div>
         </header>
 
