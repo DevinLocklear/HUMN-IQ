@@ -299,6 +299,10 @@ export default function ROI({ session }) {
                         {result.profit >= 0 ? '+' : ''}${result.profit.toFixed(2)}
                       </div>
                     </div>
+                    <div className="breakdown-item highlight">
+                      <div className="breakdown-label">Break Even Price</div>
+                      <div className="breakdown-value">${(result.totalCost / result.qty).toFixed(2)}</div>
+                    </div>
                   </div>
                 </div>
 
