@@ -595,7 +595,7 @@ export default function Portfolio({ session }) {
                 </div>
                 <div className="form-actions">
                   <button type="button" className="btn-ghost" onClick={() => setShowAdd(false)}>Cancel</button>
-                  <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Add Card'}</button>
+                  <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Saving...' : activeTab === 'sealed' ? 'Add Product' : 'Add Card'}</button>
                 </div>
               </form>
             </div>
