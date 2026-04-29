@@ -34,6 +34,7 @@ export default function ROI({ session }) {
   const [form, setForm] = useState({
     card_name: '',
     raw_price: '',
+    pulled_from_pack: false,
     predicted_grade: '9',
     grading_company: 'PSA',
     grading_tier: 0,
@@ -77,7 +78,7 @@ export default function ROI({ session }) {
   }
 
   function calculate() {
-    const rawPriceEach = parseFloat(form.raw_price) || 0;
+    const rawPriceEach = form.pulled_from_pack ? 0 : (parseFloat(form.raw_price) || 0);
     const gradingCostEach = GRADING_COSTS[form.grading_company][form.grading_tier].cost;
     const shipping = parseFloat(form.shipping) || 15;
     const qty = parseInt(form.quantity) || 1;
@@ -189,10 +190,15 @@ export default function ROI({ session }) {
               )}
             </div>
 
+            <div className="pulled-toggle" onClick={() => setForm(f => ({ ...f, pulled_from_pack: !f.pulled_from_pack, raw_price: !f.pulled_from_pack ? '' : f.raw_price }))}>
+              <div className={`toggle-switch ${form.pulled_from_pack ? 'on' : ''}`}><div className="toggle-knob" /></div>
+              <span>Pulled from pack (cost = $0)</span>
+            </div>
+
             <div className="roi-row">
               <div className="field">
                 <label className="field-label">Raw Price ($)</label>
-                <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.raw_price} onChange={e => setForm(f => ({ ...f, raw_price: e.target.value }))} />
+                <input className="field-input" type="number" step="0.01" placeholder={form.pulled_from_pack ? "Pulled from pack" : "0.00"} value={form.raw_price} disabled={form.pulled_from_pack} onChange={e => setForm(f => ({ ...f, raw_price: e.target.value }))} style={form.pulled_from_pack ? { opacity: 0.4 } : {}} />
               </div>
               <div className="field">
                 <label className="field-label">Quantity</label>
@@ -260,7 +266,7 @@ export default function ROI({ session }) {
                   <div className="breakdown-grid">
                     <div className="breakdown-item">
                       <div className="breakdown-label">Raw Value</div>
-                      <div className="breakdown-value">${result.rawPrice.toFixed(2)}</div>
+                      <div className="breakdown-value">{form.pulled_from_pack ? 'Pack Pull' : `$${result.rawPrice.toFixed(2)}`}</div>
                     </div>
                     <div className="breakdown-item">
                       <div className="breakdown-label">Grading Cost</div>
