@@ -67,6 +67,7 @@ export default function Sealed({ session }) {
     setAnalyzing(true);
 
     const market = parseFloat(currentPrice) || selected.retail;
+    const hasMarketPrice = !!market;
     const retail = selected.retail;
     const multiplier = market / retail;
     const priceHistory = generatePriceHistory(retail, multiplier);
@@ -75,6 +76,7 @@ export default function Sealed({ session }) {
     const premiumPct = ((market - retail) / retail) * 100;
     const trending = multiplier > 1.3;
     const goodValue = multiplier < 1.15;
+    
 
     let recommendation = 'HOLD';
     let recommendationReason = '';
@@ -104,7 +106,8 @@ export default function Sealed({ session }) {
 
     setTimeout(() => {
       setAnalysis({
-        market,
+        market: finalMarket,
+        hasMarketPrice,
         retail,
         multiplier,
         premiumPct,
@@ -246,7 +249,7 @@ export default function Sealed({ session }) {
                 <div className="sealed-stats">
                   <div className="sealed-stat">
                     <div className="sealed-stat-label">Market Price</div>
-                    <div className="sealed-stat-value">${analysis.market.toFixed(2)}</div>
+                    <div className="sealed-stat-value">{analysis.hasMarketPrice ? `$${analysis.market.toFixed(2)}` : <span style={{color:'var(--text-dim)',fontSize:14}}>Not entered</span>}</div>
                   </div>
                   <div className="sealed-stat">
                     <div className="sealed-stat-label">Retail Price</div>
@@ -255,13 +258,13 @@ export default function Sealed({ session }) {
                   <div className="sealed-stat">
                     <div className="sealed-stat-label">Premium</div>
                     <div className={`sealed-stat-value ${analysis.premiumPct > 0 ? 'positive' : 'negative'}`}>
-                      {analysis.premiumPct >= 0 ? '+' : ''}{analysis.premiumPct.toFixed(1)}%
+                      {analysis.hasMarketPrice ? `${analysis.premiumPct >= 0 ? '+' : ''}${analysis.premiumPct.toFixed(1)}%` : '—'}
                     </div>
                   </div>
                   <div className="sealed-stat">
                     <div className="sealed-stat-label">vs Retail</div>
                     <div className={`sealed-stat-value ${analysis.multiplier >= 1 ? 'positive' : 'negative'}`}>
-                      {analysis.multiplier.toFixed(2)}x
+                      {analysis.hasMarketPrice ? `${analysis.multiplier.toFixed(2)}x` : '—'}
                     </div>
                   </div>
                 </div>
