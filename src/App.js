@@ -9,7 +9,7 @@ import Portfolio from './pages/Portfolio';
 import ROI from './pages/ROI';
 import Sealed from './pages/Sealed';
 import Sets from './pages/Sets';
-import SetIntel from './pages/SetIntel';
+import Sets from './pages/Sets';
 import './App.css';
 
 function PrivateRoute({ children, session, loading }) {
@@ -55,7 +55,6 @@ function App() {
         <Route path="/roi" element={<PrivateRoute session={session} loading={loading}><ROI session={session} /></PrivateRoute>} />
         <Route path="/sealed" element={<PrivateRoute session={session} loading={loading}><Sealed session={session} /></PrivateRoute>} />
         <Route path="/sets" element={<PrivateRoute session={session} loading={loading}><Sets session={session} /></PrivateRoute>} />
-        <Route path="/sets" element={<PrivateRoute session={session} loading={loading}><SetIntel session={session} /></PrivateRoute>} />
       </Routes>
     </Router>
   );
