@@ -9,7 +9,6 @@ import Portfolio from './pages/Portfolio';
 import ROI from './pages/ROI';
 import Sealed from './pages/Sealed';
 import Sets from './pages/Sets';
-import Sets from './pages/Sets';
 import './App.css';
 
 function PrivateRoute({ children, session, loading }) {
