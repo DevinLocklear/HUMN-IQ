@@ -106,7 +106,7 @@ export default function Sealed({ session }) {
 
     setTimeout(() => {
       setAnalysis({
-        market: finalMarket,
+        market: market,
         hasMarketPrice,
         retail,
         multiplier,
