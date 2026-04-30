@@ -199,7 +199,7 @@ export default function ROI({ session }) {
               </div>
               <div className="field">
                 <label className="field-label">Purchase Price ($)</label>
-                <input className="field-input" type="number" step="0.01" placeholder="What you paid" value={form.purchase_price} onChange={e => setForm(f => ({ ...f, purchase_price: e.target.value }))} />
+                <input className="field-input" type="number" step="0.01" placeholder="0.00" value={form.purchase_price} onChange={e => setForm(f => ({ ...f, purchase_price: e.target.value }))} />
               </div>
             </div>
             <div className="roi-row">
@@ -207,7 +207,10 @@ export default function ROI({ session }) {
                 <label className="field-label">Quantity</label>
                 <input className="field-input" type="number" min="1" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} />
               </div>
-              <div className="field" />
+              <div className="field">
+                <label className="field-label">Shipping ($)</label>
+                <input className="field-input" type="number" step="0.01" value={form.shipping} onChange={e => setForm(f => ({ ...f, shipping: e.target.value }))} />
+              </div>
             </div>
 
 
@@ -232,18 +235,12 @@ export default function ROI({ session }) {
               </div>
             </div>
 
-            <div className="roi-row">
-              <div className="field">
+            <div className="field">
                 <label className="field-label">Predicted Grade</label>
                 <select className="field-input" value={form.predicted_grade} onChange={e => setForm(f => ({ ...f, predicted_grade: e.target.value }))}>
                   {grades.map(g => <option key={g} value={g}>{form.grading_company} {g}</option>)}
                 </select>
               </div>
-              <div className="field">
-                <label className="field-label">Shipping ($)</label>
-                <input className="field-input" type="number" step="0.01" value={form.shipping} onChange={e => setForm(f => ({ ...f, shipping: e.target.value }))} />
-              </div>
-            </div>
 
             <button className="btn-primary" onClick={calculate} style={{ width: '100%', padding: '16px', marginTop: 8 }}>
               Calculate ROI
@@ -277,21 +274,13 @@ export default function ROI({ session }) {
                       <div className="breakdown-label">Purchase Cost</div>
                       <div className="breakdown-value negative">{result.rawPrice === 0 ? '$0.00' : `-$${result.rawPrice.toFixed(2)}`}</div>
                     </div>
-                    <div className="breakdown-item">
-                      <div className="breakdown-label">Grading Cost</div>
-                      <div className="breakdown-value negative">-${result.gradingCost.toFixed(2)}</div>
-                    </div>
-                    <div className="breakdown-item">
-                      <div className="breakdown-label">Shipping</div>
-                      <div className="breakdown-value negative">-${result.shipping}</div>
-                    </div>
-                    <div className="breakdown-item">
-                      <div className="breakdown-label">Total Cost</div>
-                      <div className="breakdown-value">-${result.totalCost.toFixed(2)}</div>
-                    </div>
                     <div className="breakdown-item highlight">
                       <div className="breakdown-label">Graded Value</div>
                       <div className="breakdown-value positive">${result.gradedValue.toFixed(2)}</div>
+                    </div>
+                    <div className="breakdown-item">
+                      <div className="breakdown-label">Grading Cost</div>
+                      <div className="breakdown-value negative">-${result.gradingCost.toFixed(2)}</div>
                     </div>
                     <div className="breakdown-item highlight">
                       <div className="breakdown-label">Net Profit {result.qty > 1 ? `(×${result.qty})` : ''}</div>
@@ -299,9 +288,17 @@ export default function ROI({ session }) {
                         {result.profit >= 0 ? '+' : ''}${result.profit.toFixed(2)}
                       </div>
                     </div>
+                    <div className="breakdown-item">
+                      <div className="breakdown-label">Shipping</div>
+                      <div className="breakdown-value negative">-${result.shipping}</div>
+                    </div>
                     <div className="breakdown-item highlight">
                       <div className="breakdown-label">Break Even Price</div>
                       <div className="breakdown-value">${(result.totalCost / result.qty).toFixed(2)}</div>
+                    </div>
+                    <div className="breakdown-item">
+                      <div className="breakdown-label">Total Cost</div>
+                      <div className="breakdown-value negative">-${result.totalCost.toFixed(2)}</div>
                     </div>
                   </div>
                 </div>

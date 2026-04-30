@@ -28,10 +28,10 @@
 .roi-inputs {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 32px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .roi-section-label {
@@ -46,6 +46,14 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  min-width: 0;
+}
+
+.roi-row .field { min-width: 0; }
+
+.field-input {
+  width: 100%;
+  min-width: 0;
 }
 
 /* Results */
