@@ -86,8 +86,6 @@ export default function Sets({ session }) {
     const totalValue = prices.reduce((a, b) => a + b, 0);
     const avgValue = prices.length ? totalValue / prices.length : 0;
     const packsPerBox = 36;
-    const cardsPerPack = 10;
-    const cardsPerBox = packsPerBox * cardsPerPack;
 
     return {
       totalCards: cards.length,
