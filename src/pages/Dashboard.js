@@ -18,7 +18,7 @@ export default function Dashboard({ session }) {
     { icon: '◎', label: 'ROI Calculator', path: '/roi' },
     { icon: '▲', label: 'Market Prices', path: '/market', soon: true },
     { icon: '◉', label: 'Sealed Analysis', path: '/sealed' },
-    { icon: '◐', label: 'Set Intelligence', path: '/sets', soon: true },
+    { icon: '◐', label: 'Set Intelligence', path: '/sets' },
   ];
 
   const quickActions = [
